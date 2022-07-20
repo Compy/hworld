@@ -1,0 +1,11 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	local(undef,$month,$day,undef,$year) = split(/\s* /,localtime(time),5);
+	$BACKUPFILE = "GWDB\-$day$month$year";
+	system("tar -cf ./BACKUP/$BACKUPFILE\.tar ./DB/\*.db");
+	system("gzip ./BACKUP/$BACKUPFILE\.tar");
+	&notice("Database saved into file: $BACKUPFILE\.tar\.gz");
+}
+

@@ -1,0 +1,4 @@
+Kicks a user out of the channel. The user can rejoin the channel after being kicked.
+
+EXAMPLE: /msg %CS% KICK #Gworld Lamer You are not wanted here.
+SEEALSO: KBAN

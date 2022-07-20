@@ -1,0 +1,398 @@
+sub submode {
+	local($chan,$modes) = @_;
+	if (($modes =~ /n/i) || ($modes =~ /t/i) || ($modes =~ /i/i) || ($modes =~ /s/i) || ($modes =~ /m/i) || ($modes =~ /p/i) || ($modes =~ /k/i) || ($modes =~ /l/i)) {
+		$OLDMODES = "";
+		$NEWMODES = "";
+		$ADDMODES = "";
+		$REMMODES = "";
+		@sm = split(//,$modes);
+		$MTYPE = "";
+		foreach $m (@sm) {
+			if ($m ne "") {
+				if ($m eq "\+") {
+					$MTYPE = "0";
+				}
+				elsif ($m eq "\-") {
+					$MTYPE = "1";
+				}
+				else {
+					if ($MTYPE == 0) {
+						$ADDMODES .= $m;
+					}
+					elsif ($MTYPE == 1) {
+						$REMMODES .= $m;
+					}
+				}
+			}
+		}
+		$ADDMODES =~ s/o//g;
+		$ADDMODES =~ s/v//g;
+		$ADDMODES =~ s/b//g;
+		$REMMODES =~ s/o//g;
+		$REMMODES =~ s/v//g;
+		$REMMODES =~ s/b//g;
+		($REMMODES,undef) = split(/ /,$REMMODES,2);
+		@M = split(//,$ADDMODES);
+		foreach $m (@M) {
+			$CMODE{lc($chan)}->{$m} = 1;
+		}
+		@M = split(//,$REMMODES);
+		foreach $m (@M) {
+			$CMODE{lc($chan)}->{$m} = 0;
+		}
+		getchmodes($chan);
+		debug("NEWMODES($chan): $getchmodes_modes");
+	}
+}									
+ 
+sub resetmodes {
+	local($chan) = @_;
+	$chan = lc($chan);
+	if ($CDATA{$chan}->{LOCKMODE} eq "") { }
+	else {
+		$CHANMODES = &getchmodes($chan);
+		$LOCKMODES = $CDATA{$chan}->{LOCKMODE};
+		$CHANMODES =~ s/\+//;
+		$LOCKMODES =~ s/\+//;
+		$BUFFER = "+";
+		foreach $i (split(//,$LOCKMODES)) {
+			if ($CHANMODES !~ /$i/) {
+				$BUFFER .= $i;
+			}
+		}
+		$BUFFER .= "-";
+		foreach $i (split(//,$CHANMODES)) {
+			if ($LOCKMODES !~ /$i/) {
+				$BUFFER .= $i;
+			}
+		}
+		if ($BUFFER =~ /k/) {
+			$BUFFER .= " \*";
+		}
+		out("$CSNUM M $chan $BUFFER");
+		&submode($chan,$BUFFER);
+	}
+}
+
+sub returnchlevel {
+	local($chan,$nick) = @_;
+	$chan = lc($chan);
+	$nick = lc($nick);
+	$found = 0;
+	$tmp = $CDATA{$chan}->{USERS};
+	@tmpusers = split(/ /,$tmp);
+	foreach $i (@tmpusers) {
+		if ($i ne "") {
+			($getchlevel_nick,$getchlevel_level,$getchlevel_adder) = split(/\@/,$i,3);
+			if (lc($getchlevel_nick) eq $nick) {
+				$found = 1;
+				return $getchlevel_level;
+			}
+		}
+	}
+	if ($found != 1) {
+		if ($CSERVICELVL{$numnick} >= $CSERVICE) {
+			&notice("\002Cservice overriding access with level $CSERVICELVL{$numnick}\002");
+			return $CSERVICELVL{$numnick};
+		}
+		else {
+			return 0;
+		}
+	}
+}
+
+sub locktopic {
+	local($chan) = @_;
+	if ($CDATA{lc($chan)}->{LOCKTOPIC} ne "") {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub lockmode {
+	local($chan) = @_;
+	if ($CDATA{lc($chan)}->{LOCKMODE} ne "") {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub getcmdlevel {
+	$cmd = $COM;
+	$cmdlvl = $HELP{$service}->{$cmd}->{LEVEL};
+	return $cmdlvl;
+}
+sub addchan {
+	local($chan,$owner) = @_;
+	$chan = lc($chan);
+	$CDATA{$chan}->{REGISTERED} = 1;
+	$CDATA{$chan}->{OWNER} = $owner;
+	$CDATA{$chan}->{USERS} = "$owner\@500\@OWNER ";
+        $CDATA{$chan}->{LOCKMODE} = "";
+        $CDATA{$chan}->{LOCKTOPIC} = "";
+	$time = localtime(time);
+        $CDATA{$chan}->{INFO} = "Channel registered by $owner on $time";
+        $CDATA{$chan}->{REGDATE} = time;
+        $CDATA{$chan}->{LASTUSED} = time;
+        $CDATA{$chan}->{PERMBANS} = "";
+        $CDATA{$chan}->{NOEXPIRE} = 0;
+	out("$CSNUM J $tok[1]");
+	out("$GWNUM M $tok[1] +ont $CSNUM");
+	&mode($GWNUM,$tok[1],"+nt");
+	out("$CSNUM T $tok[1] :Channel registered by $owner on $time");
+}
+sub ison_user {
+	local($channel,$user) = @_;
+	$tmp = $NNUMERIC{lc($user)};
+	if ($ONCHAN{$tmp}->{lc($channel)}->{ISON} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub ison_num {
+	local($channel,$numeric) = @_;
+	if ($ONCHAN{$numeric}->{lc($channel)}->{ISON} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+
+}
+sub isop_user {
+	local($channel,$user) = @_;
+	$tmp = $NNUMERIC{lc($user)};
+	if ($ONCHAN{$tmp}->{lc($channel)}->{ISOP} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub isop_num {
+	local($channel,$numeric) = @_;
+	if ($ONCHAN{$numeric}->{lc($channel)}->{ISOP} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub isvo_user {
+	local($channel,$user) = @_;
+	$tmp = $NNUMERIC{lc($user)};
+	if ($ONCHAN{$tmp}->{lc($channel)}->{ISVO} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub isvo_num {
+	local($channel,$numeric) = @_;
+	if ($ONCHAN{$numeric}->{lc($channel)}->{ISVO} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub ispermban {
+	local($channel,$mask) = @_;
+	$found = 0;
+	$PERMBANS = $CDATA{lc($channel)}->{PERMBANS};
+	@PB = split(/\ƒ/,$PERMBANS);
+	foreach $i (@PB) 
+	{
+		if ($i ne "") {
+			($PB_MASK,$PB_SETTER,$PB_DATE,$PB_REASONS) = split(/±/,$i,4);
+			if (lc($PB_MASK) eq lc($mask)) {
+				return 1;
+				$found =1;
+			}
+		}	
+	}
+	if ($found == 0) {
+		return 0;
+	}      
+                                                        
+}
+
+sub isban {
+	local($channel,$mask) = @_;
+	if ($CBAN{lc($channel)}->{lc($mask)} eq "1") {
+		return 1;
+	}
+	return 0;
+}
+sub getchlevel {
+	local($chan,$nick) = @_;
+	$chan = lc($chan);
+	$nick = lc($nick);
+	$found = 0;
+	$tmp = $CDATA{$chan}->{USERS};
+	@tmpusers = split(/ /,$tmp);
+	foreach $i (@tmpusers) {
+		if ($i ne "") {
+			($getchlevel_nick,$getchlevel_level,$getchlevel_adder) = split(/\@/,$i,3);
+			if ((lc($getchlevel_nick) eq $nick) && ($getchlevel_level >= $HELP{$CHANSERV}->{$COM}->{LEVEL})) {
+				return 1;
+				$found = 1;
+			}
+		}
+	}
+	if ($found != 1) {
+		return 0;
+	}
+}
+sub checkchlevel {
+	local($chan,$nick) = @_;
+	$chan = lc($chan);
+	$nick = lc($nick);
+	$found = 0;
+	$tmp = $CDATA{$chan}->{USERS};
+	@tmpusers = split(/ /,$tmp);
+	foreach $i (@tmpusers) {
+		if ($i ne "") {
+			($getchlevel_nick,$getchlevel_level,$getchlevel_adder) = split(/\@/,$i,3);
+			if (lc($getchlevel_nick) eq $nick) {
+				return 1;
+				$found = 1;
+			}
+		}
+	}
+	if ($found != 1) {
+		return 0;
+	}
+}
+
+sub isrestricted_chan {
+	local($channel) = @_;
+	if ($RESTRICT{lc($channel)}->{DEFINE} == 1) {
+                $isrestricted_reason = $RESTRICT{lc($channel)}->{REASON};         
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub isregisteredcase_chan {
+        local($channel) = @_;
+        if ($CDATA{$channel}->{REGISTERED} == 1) {
+                return 1;
+        }
+        else {
+                return 0;
+        }                                                                      
+}
+sub isregistered_chan {
+	local($channel) = @_;
+	if ($CDATA{lc($channel)}->{REGISTERED} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub isvalid {
+	local($channel) = @_;
+	if ($channel =~ /^\#(\S+)/) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub ischan {
+	local($channel) = @_;
+#		Returns: 1/0
+}
+
+sub op_nick {
+	local($channel,$nickname) = @_;
+	$tmp = $NNUMERIC{lc($nickname)};
+	$ONCHAN{$tmp}->{lc($channel)}->{ISOP} = 1;
+}
+sub op_num {
+	local($channel,$numeric) = @_;
+	$ONCHAN{$numeric}->{lc($channel)}->{ISOP} = 1;
+}
+sub deop_nick {
+	local($channel,$nickname) = @_;
+	$tmp = $NNUMERIC{lc($nickname)};
+	$ONCHAN{$tmp}->{lc($channel)}->{ISOP} = 0;
+}
+
+sub deop_num {
+	local($channel,$numeric) = @_;
+	$ONCHAN{$numeric}->{lc($channel)}->{ISOP} = 0;
+}
+
+
+sub vo_nick {
+	local($channel,$nickname) = @_;
+	$tmp = $NNUMERIC{lc($nickname)};
+	$ONCHAN{$tmp}->{lc($channel)}->{ISVO} = 1;
+}
+sub vo_num {
+	local($channel,$numeric) = @_;
+	$ONCHAN{$numeric}->{lc($channel)}->{ISVO} = 1;
+}
+sub devo_nick {
+	local($channel,$nickname) = @_;
+	$tmp = $NNUMERIC{lc($nickname)};
+	$ONCHAN{$tmp}->{lc($channel)}->{ISVO} = 0;
+}
+
+sub devo_num {
+	local($channel,$numeric) = @_;
+	$ONCHAN{$numeric}->{lc($channel)}->{ISVO} = 0;
+}
+
+
+sub getchmodes {
+	local($chan) = @_;
+	$getchmodes_modes = "\+";
+	if ($CMODE{lc($chan)}->{n} == 1) {
+		$getchmodes_modes .= "n";
+	}
+	if ($CMODE{lc($chan)}->{t} == 1) {
+		$getchmodes_modes .= "t";
+	}
+
+	if ($CMODE{lc($chan)}->{i} == 1) {
+		$getchmodes_modes .= "i";
+	}
+
+	if ($CMODE{lc($chan)}->{m} == 1) {
+		$getchmodes_modes .= "m";
+	}
+
+	if ($CMODE{lc($chan)}->{p} == 1) {
+		$getchmodes_modes .= "p";
+	}
+
+	if ($CMODE{lc($chan)}->{s} == 1) {
+		$getchmodes_modes .= "s";
+	}
+
+	if ($CMODE{lc($chan)}->{l} == 1) {
+		$getchmodes_modes .= "l";
+	}
+
+	if ($CMODE{lc($chan)}->{k} == 1) {
+		$getchmodes_modes .= "k";
+	}
+	return $getchmodes_modes;
+}
+
+1;

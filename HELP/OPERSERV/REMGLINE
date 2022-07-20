@@ -1,0 +1,4 @@
+Removes a G-line (global ban) from the network.
+
+EXAMPLE: /msg %OS% REMGLINE *@isp1.com.sg
+SEEALSO: ADDGLINE GLIST

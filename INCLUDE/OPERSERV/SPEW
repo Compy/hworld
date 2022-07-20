@@ -1,0 +1,44 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+else {
+	if ($tok[1] =~ /(\S+)\!(\S+)\@(\S+)/) {
+		$tok[1] =~ /(\S+)\!(\S+)\@(\S+)/;
+		$mnick = $1;
+		$mid = $2;
+		$mmsk = $3;
+	}
+
+	elsif ($tok[1] =~ /(\S+)\@(\S+)/) {
+		($mid,$mmsk) = split(/\@/,$tok[1],2);
+		$mnick = "*";
+	}
+	else {
+		$mnick = "*";
+		$mid = "*";
+		$mmsk = $tok[1];
+	}
+		
+	$matchnum = "0";
+	notice("Searching: \002$mnick\!$mid\@$mmsk");
+	foreach $i (keys %NINFO)
+	{
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && ($NINFO{$i}->{NICK} ne "")) {
+			$tmpnick = $NINFO{$i}->{NICK};
+			$tmpident = $NINFO{$i}->{IDENT};
+			$tmphost = $NINFO{$i}->{MASK};
+			if ((&uhcheck($mnick,$mid,$mmsk,$tmpnick,$tmpident,$tmphost)) && (lc($tmphost) ne lc($nickhost)))
+			{
+				$matchnum++;
+				$tmpserv = $NINFO{$i}->{SERVER}; ## Gets server numeric
+				&notice(" $matchnum) $tmpnick \($tmpident\@$tmphost) \[$tmpserv\]");
+			}
+		}
+	}
+	notice("End of search");
+}

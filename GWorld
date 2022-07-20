@@ -1,0 +1,354 @@
+#!/usr/bin/perl
+use Socket;
+require 'INCLUDE/Socket.pm';
+require 'SRC/parse.gw';
+require 'SRC/nfunctions.gw';
+require 'SRC/mfunctions.gw';
+require 'SRC/sfunctions.gw';
+require 'SRC/cfunctions.gw';
+
+
+
+if(!(-e "gworld.conf")) {
+	printf("Error: gworld.conf not found, services halted");
+	die;
+}
+$SIG{'INT'} = \&die;
+$SIG{'TERM'} = \&die;
+$SIG{'HUP'} = \&die;
+# $VER = "G-World v0.70 P10";
+$services_started = 0;
+&initp10;
+&config;
+&connect;
+&synch_data;
+&gethelp;
+&fork;
+&start_listen;
+
+sub config {
+	open(config,"gworld.conf");
+	@config = <config>;
+	close(config);
+	foreach $a (@config) {
+		$a =~ s/\n//g;
+		$a =~ s/\r//g;
+		($config_1,$config_2) = split(/ /,$a,2);
+		if (($config_1 !~ /\#/ig) && ($a ne "")) {
+		      $$config_1 = $config_2;
+		}
+	}
+	undef($a);
+	undef($config_1);
+	undef($config_2);
+	undef(@config);
+}		
+
+sub connect {
+	$SOCK = IO::Socket::INET->new(
+			PeerAddr => $REMOTEIP,
+			PeerPort => $REMOTEPORT,
+			Proto    => 'tcp',
+			Type     => SOCK_STREAM)
+	or die "Unable to make a connection to $REMOTEIP:$REMOTEPORT\n";
+	$t = time;
+	out("PASS :$REMOTEPASS");
+	out("SERVER $SERVERNAME 1 $t $t J10 $GWNUM\]\]\] :$SERVERDESC");
+	out("$GWNUM SE $t :$SERVERNAME");
+	select($SOCK);
+	undef($t);
+	$NWINFO{UPTIME} = time;
+	$NWINFO{LASTSYNCH} = time;
+}
+sub fork {
+	$pid = fork;
+	if (!defined $pid) {
+		warn "$0: Fail fork(): $!";
+	}
+	if ($pid != 0)
+	{
+		system("echo $pid > gworld.pid");
+		exit 0;
+	}
+}
+
+sub start_services {
+	$t = time;
+	out("$GWNUM NICK $OPERSERV 1 $t $OSIDENT $NICKHOST AAAAAA $OSNUM :$OSNAME");
+	out(":$OPERSERV MODE $OPERSERV +dik");
+	out("$GWNUM NICK $CHANSERV 1 $t $CSIDENT $NICKHOST AAAAAA $CSNUM :$CSNAME");
+	out(":$CHANSERV MODE $CHANSERV +dik");
+	undef($t);
+	$services_started = 1;
+}
+sub kill_services {
+	local($KILL_REASONS) = @_;
+	out("$OSNUM Q :$KILL_REASONS");
+	out("$CSNUM Q :$KILL_REASONS");
+	$services_started = 0;
+}
+
+
+sub gethelp {
+	open(HELP, "./HELP/CHANSERV/cmds.db");
+	@HELP = <HELP>;
+	close(HELP);
+	foreach $i (@HELP) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if ($i ne "") {
+			($HELP_CMD,$HELP_LEVEL,$HELP_SYNTAX) = split(/\s* /,$i,3);
+			$HELPSYNTAX = "$HELP_CMD $HELP_SYNTAX";
+			$HELP{$CHANSERV}->{$HELP_CMD}->{LEVEL} = $HELP_LEVEL;
+			$HELP{$CHANSERV}->{$HELP_CMD}->{SYNTAX} = $HELPSYNTAX;
+		}
+	}
+	open(HELP, "./HELP/OPERSERV/cmds.db");
+	@HELP = <HELP>;
+	close(HELP);
+	foreach $i (@HELP) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if ($i ne "") {
+			($HELP_CMD,$HELP_LEVEL,$HELP_SYNTAX) = split(/\s* /,$i,3);
+			$HELPSYNTAX = "$HELP_CMD $HELP_SYNTAX";
+			$HELP{$OPERSERV}->{$HELP_CMD}->{LEVEL} = $HELP_LEVEL;
+			$HELP{$OPERSERV}->{$HELP_CMD}->{SYNTAX} = $HELPSYNTAX;
+		}
+	}
+}
+sub joinchans {
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregistered_chan($i))) {
+			if ($BURST{lc($i)} ne "") {
+				$tmp = $BURST{lc($i)};
+				getchmodes($i);
+				$tmp2 = $getchmodes_modes;
+##				debug("BURSTING $i [$tmp]");
+				out("$GWNUM BURST $i $tmp $tmp2 $CSNUM:o");
+			}
+			else {
+##				debug("CREATE $i");
+				$t = time;
+				out("$CSNUM CREATE $i $t");
+				$tmp = $CDATA{lc($i)}->{LOCKMODE};
+				out("$CSNUM M $i \+$tmp");
+				&mode($CSNUM,$i,"+$tmp");
+	                        $CINFO{lc($i)}->{CREATE} = $t;
+
+			}
+		}
+	}
+	if ($BURST{lc($GW_DEBUG_CHAN2)} ne "") {
+		$tmp = $BURST{lc($GW_DEBUG_CHAN2)};
+		getchmodes($GW_DEBUG_CHAN2);
+		$tmp2 = $getchmodes_modes;
+		out("$GWNUM BURST $GW_DEBUG_CHAN2 $tmp $OSNUM:o");
+	}
+	else {
+		$t = time;
+		out("$OSNUM CREATE $GW_DEBUG_CHAN2 $t");
+	}
+	out("$OSNUM M $GW_DEBUG_CHAN2 -ntimsplk *");
+	out("$OSNUM M $GW_DEBUG_CHAN2 +ntk gnxm4d3gw0r1c1");
+}
+sub sync {
+	## Saving Nicknames
+	open(NS, ">./DB/nicks.db");
+	foreach $i (keys %NDATA) {
+		if ($i ne "") {
+			if (isregistered_nick($i)) {
+				printf(NS "%sž%sž%sž%dž%dž%dž%d\n",$i ,$NDATA{$i}->{PASSWD},$NDATA{$i}->{LASTHOST},$NDATA{$i}->{LASTAUTH},$NDATA{$i}->{REGDATE},$NDATA{$i}->{CSLVL},$NDATA{$i}->{NOEXPIRE});
+			}
+		}
+	}
+	close(NS);
+	## Saving Channels
+	open(CS, ">./DB/chans.db");
+	foreach $i (keys %CDATA) {
+		if ($i ne "") {
+			if (isregisteredcase_chan($i)) {
+				printf(CS "%sž%sž%sž%sž%sž%sž%dž%dž%sž%d\n",$i ,$CDATA{$i}->{OWNER},$CDATA{$i}->{USERS},$CDATA{$i}->{LOCKMODE},$CDATA{$i}->{LOCKTOPIC},$CDATA{$i}->{INFO},$CDATA{$i}->{REGDATE},$CDATA{$i}->{LASTUSED},$CDATA{$i}->{PERMBANS},$CDATA{$i}->{NOEXPIRE});
+			}
+		}
+	}
+	close(CS);
+	## Saving Restricted handles
+	open(RE, ">./DB/restrict.db");
+	foreach $i (keys %RESTRICT) {
+		if (($i ne "") && ($RESTRICT{$i}->{DEFINE} == 1)) {
+			printf(RE "%s %s\n",$i,$RESTRICT{$i}->{REASON});
+		}
+	}
+	close(RE);
+
+	## Saving GLINE handles
+	open(GL, ">./DB/gline.db");
+	foreach $i (keys %GLINE) {
+		if (($i ne "") && (isgline($i))) {
+			$time = time;
+			$exptime = $GLINE{$i}->{DURATION} + $GLINE{$i}->{TIME};
+			if ($time >= $exptime) {
+				delete($GLINE{$i});
+			}
+			else {
+				printf(GL "%s %s %s %s %s\n",$i,$GLINE{$i}->{SETTER},$GLINE{$i}->{DURATION},$GLINE{$i}->{TIME},$GLINE{$i}->{REASON});
+			}
+		}
+	}
+	close(GL);
+
+	## Saving registered clones
+	open(CLN, ">./DB/clones.db");
+	foreach $i (keys %CLONE) {
+		if (($i ne "") && ($CLONE{lc($i)}->{DEFINE} == 1)) {
+			printf(CLN "%s\n",$i);
+		}
+	}
+	close(CLN);
+
+
+
+}
+sub synch_data {
+	open(NSS, "./DB/nicks.db");
+	@NSS = <NSS>;
+	close(NSS);
+	foreach $i (@NSS) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			($SD_NICK,$SD_PASSWD,$SD_LASTHOST,$SD_LASTAUTH,$SD_REGDATE,$SD_CSLVL,$SD_NOEXPIRE) = split(/ž/, $i, 7);
+			$SD_NICK = lc($SD_NICK);
+			$NDATA{$SD_NICK}->{REGISTERED} = 1;
+			$NDATA{$SD_NICK}->{PASSWD} = $SD_PASSWD;
+			$NDATA{$SD_NICK}->{LASTHOST} = $SD_LASTHOST;
+			$NDATA{$SD_NICK}->{LASTAUTH} = $SD_LASTAUTH;
+			$NDATA{$SD_NICK}->{REGDATE} = $SD_REGDATE;
+			$NDATA{$SD_NICK}->{CSLVL} = $SD_CSLVL;
+			$NDATA{$SD_NICK}->{NOEXPIRE} = $SD_NOEXPIRE;
+		}
+	}
+	undef($SD_NICK);
+	undef($SD_PASSWD);
+	undef($SD_LASTHOST);
+	undef($SD_LASTAUTH);
+	undef($SD_REGDATE);
+	undef($SD_CSLVL);
+	undef($SD_NOEXPIRE);
+	undef(@NSS);
+
+
+	open(CSS, "./DB/chans.db");
+	@CSS = <CSS>;
+	close(CSS);
+	foreach $i (@CSS) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			($SD_CHAN,$SD_OWNER,$SD_USERS,$SD_LOCKMODE,$SD_LOCKTOPIC,$SD_INFO,$SD_REGDATE,$SD_LASTUSED,$SD_PERMBANS,$SD_NOEXPIRE) = split(/ž/, $i, 10);
+			$SD_CHAN = lc($SD_CHAN);
+			$CDATA{$SD_CHAN}->{REGISTERED} = 1;
+			$CDATA{$SD_CHAN}->{OWNER} = $SD_OWNER;
+			$CDATA{$SD_CHAN}->{USERS} = $SD_USERS;
+			$CDATA{$SD_CHAN}->{LOCKMODE} = $SD_LOCKMODE;
+			$CDATA{$SD_CHAN}->{LOCKTOPIC} = $SD_LOCKTOPIC;
+			$CDATA{$SD_CHAN}->{INFO} = $SD_INFO;
+			$CDATA{$SD_CHAN}->{REGDATE} = $SD_REGDATE;
+			$CDATA{$SD_CHAN}->{LASTUSED} = $SD_LASTUSED;
+			$CDATA{$SD_CHAN}->{PERMBANS} = $SD_PERMBANS;
+			$CDATA{$SD_CHAN}->{NOEXPIRE} = $SD_NOEXPIRE;
+
+		}
+	}
+	undef($SD_CHAN);
+	undef($SD_OWNER);
+	undef($SD_USERS);
+	undef($SD_LOCKMODE);
+	undef($SD_LOCKTOPIC);
+	undef($SD_INFO);
+	undef($SD_REGDATE);
+	undef($SD_LASTUSED);
+	undef($SD_PERMBANS);
+	undef($SD_NOEXPIRE);
+	undef(@CSS);
+
+	open(RES, "./DB/restrict.db");
+	@RES = <RES>;
+	close(RES);
+	foreach $i (@RES) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			($SD_HANDLE,$SD_REASON) = split(/ /, $i, 2);
+			$RESTRICT{lc($SD_HANDLE)}->{DEFINE} = 1;
+			$RESTRICT{lc($SD_HANDLE)}->{REASON} = $SD_REASON;
+		}
+	}
+
+	open(GL, "./DB/gline.db");
+	@GL = <GL>;
+	close(GL);
+	foreach $i (@GL) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			($GLINE_MASK,$SETTER,$DURATION,$TIME,$REASON) = split(/ /, $i, 5);
+			$GLINE_MASK = lc($GLINE_MASK);
+			$GLINE{$GLINE_MASK}->{DEFINE} = 1;
+			$GLINE{$GLINE_MASK}->{DURATION} = $DURATION;
+			$GLINE{$GLINE_MASK}->{SETTER} = $SETTER;
+			$GLINE{$GLINE_MASK}->{TIME} = $TIME;
+			$GLINE{$GLINE_MASK}->{REASON} = $REASON;
+		}
+	}
+
+	open(CLN, "./DB/clones.db");
+	@CLN = <CLN>;
+	close(CLN);
+	foreach $i (@CLN) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			$CLONE{lc($i)}->{DEFINE} = 1;
+		}
+	}
+
+	&synch_servers;
+}
+sub synch_servers {
+        open(SV, "./DB/servers.db");
+        @SV = <SV>;
+        close(SV);
+        foreach $i (@SV) {
+                $i =~ s/\n//g;
+                $i =~ s/\r//g;
+                if ($i ne "") {
+                        ($SV_NAME,$SV_ADMIN,$SV_NUM) = split(/ /,$i,3);
+                        $SV_NAME = lc($SV_NAME);
+                        $SDATA{$SV_NAME}->{DEFINE} = 1;
+                        $SDATA{$SV_NAME}->{NUMERIC} = $SV_NUM;
+                        $SDATA{$SV_NAME}->{ADMIN} = $SV_ADMIN;                 
+		}
+	}
+}
+sub die {
+	local($DIE_REASONS) = @_;
+	sleep(3);
+	if (($DIE_REASONS eq "HUP") || ($DIE_REASONS eq "INT") || ($DIE_REASONS eq "TERM")) {
+		$DIE_REASONS = "Recieved kill signal from console"; 
+	}
+	kill_services($DIE_REASONS);
+	&out(":$SERVERNAME SQ $SERVERNAME 0 :$DIE_REASONS");
+	sleep(1);
+        close($SOCK);
+	open(X, "gworld.pid");
+	$X = <X>;
+	close(X);
+	$X =~ s/\n//;
+	$X =~ s/\r//;
+	system("rm -fr gworld.pid");
+	system("kill -9 $X");
+	die;
+}
+

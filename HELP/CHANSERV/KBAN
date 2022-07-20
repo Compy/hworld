@@ -1,0 +1,5 @@
+Kick + Bans a user from the channel. This command is a combination of a BAN and a KICK, where
+the banmask is the *@user.domain of the user specified.
+
+EXAMPLE: /msg %CS% KBAN #Gworld Lamer You are not wanted here.
+SEEALSO: KICK CHANBANS

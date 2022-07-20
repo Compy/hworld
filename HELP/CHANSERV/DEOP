@@ -1,0 +1,10 @@
+Gets services to remove channel operator status from yourself or a user you specified.
+If [#CHANNEL] is not specified, it will DEOP you in all channels you have access in and is
+currently a channel operator. If a [NICKNAME] is specified, it will deop that user in the
+channel. Else, it will deop you in the channel.
+
+EXAMPLE: /msg %CS% DEOP #Gworld GeNeXiS
+         /msg %CS% DEOP #Gworld
+         /msg %CS% DEOP
+SEEALSO: OP
+

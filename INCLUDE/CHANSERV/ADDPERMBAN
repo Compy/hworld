@@ -1,0 +1,45 @@
+if (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[3] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");
+}
+
+else {
+	if ($tok[2] =~ /(\S+)\!(\S+)\@(\S+)/) {
+		$pbanmask = $tok[2];
+	}                                                                              
+	elsif (isonline_nick($tok[2])) {
+		getinfo_nick($tok[2]);
+		$pbanmask = "\*\!\*\@$getinfo_mask";
+	}
+	else {
+		notice("Invalid PERMBAN mask.");
+		return;
+	}
+	if (ispermban($tok[1],$pbanmask)) {
+		error($pbanmask,"is already a PERMBAN on $tok[1].");
+		return;
+	}
+
+	(undef,undef,undef,$pbanreasons) = split(/ /,$msg,4);
+	$tmp = $ISAUTH{$numnick};
+	$tmptime = time;
+	$tmp = "$pbanmask\±$tmp\±$tmptime\±$pbanreasonsƒ";
+	$tok[1] = lc($tok[1]);
+	$CDATA{$tok[1]}->{PERMBANS} .= $tmp;
+	notice("Added PERMBAN \002$pbanmask\002 on $tok[1] with reasons: \002$pbanreasons\002");
+	&out("$CSNUM M $tok[1] \+b $pbanmask");
+	&mode($CSNUM,$tok[1],"\+b $pbanmask");
+
+	undef $tmp;
+	undef $tmptime;
+	undef $pbanmask;
+	undef $pbanreasons;
+}                                                                              

@@ -1,0 +1,40 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif ($tok[1] !~ /(\S+)\@(\S+)/g) {
+	notice("Target must be in the form of user\@host.");
+}
+else {
+	($tmpident,$tmphost) = split(/\@/,$tok[1],2);
+	notice(" Scanning user\@host: \002$tok[1]\002");
+	notice("===========================================================");
+	$count=0;
+	foreach $i (keys %NDATA)
+	{
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && (isregistered_nick($i)))
+		{
+			$tmp = $NDATA{lc($i)}->{LASTHOST};
+			$tmp =~ /(\S+)\!(\S+)\@(\S+)/;
+			$cident = $2;
+			$chost = $3;
+			if (&uhcheck("*",$tmpident,$tmphost,"*",$cident,$chost))
+			{
+				$count++;
+				$tmpowner = $CDATA{$i}->{OWNER};
+				notice(" \002$count\002\. \026$i\026: $tmp");
+			}
+		}
+	}
+	notice(" Total matches: \002$count\002.");
+	notice("===========================================================");
+}
+
+

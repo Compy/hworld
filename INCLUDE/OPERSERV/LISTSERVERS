@@ -1,0 +1,29 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	notice("\026Servers found in database:    $VER\026");
+	foreach $i (keys %SDATA) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && ($SDATA{$i}->{DEFINE} == 1)) {
+			$SL_NUM = $SDATA{$i}->{NUMERIC};
+			$SL{$SL_NUM}->{ADMIN} = $SDATA{$i}->{ADMIN};		
+			$SL{$SL_NUM}->{SERVER} = $i;
+			push(@SL_SERVERNUMS, $SL_NUM);
+		}
+	}
+	@SL_SERVERSORT = sort {$a <=> $b} @SL_SERVERNUMS;
+	foreach $i (@SL_SERVERSORT) {
+		$SL_ADMIN = $SL{$i}->{ADMIN};
+		$SL_SERV = $SL{$i}->{SERVER};
+		notice("$i\. $SL_SERV \[$SL_ADMIN\]");
+	}
+	notice("End of list");
+	undef %SL;
+	undef @SL_SERVERNUMS;
+	undef @SL_SERVERSORT;
+	undef $SL_ADMIN;
+	undef $SL_SERV;
+	undef $SL_NUM;
+}

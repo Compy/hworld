@@ -1,0 +1,72 @@
+if ($tok[1] eq "") {
+	notice("\026$VER - Channel/NickName Services\026");
+	notice("-----------------------------------------------------------------");
+#	notice("\002INCOMPLETE COMMANDS HAVE A * INFRONT OF IT\002");
+	$CS_SHOW = 1;
+	undef %SHELP;
+	undef @ARR_HELP;
+	foreach $i (keys %{$HELP{$CHANSERV}}) {
+		if ($HELP{$CHANSERV}->{$i}->{LEVEL} ne "") {
+			$tmp = $HELP{$CHANSERV}->{$i}->{LEVEL};
+			if (!(-e "./INCLUDE/CHANSERV/$i")) {
+				$i = "\*$i";
+			}
+			$SHELP{$tmp} .= "$i ";
+			if ($SHDEF{$tmp} != 1) {
+				push(@ARR_HELP, $tmp);
+				$SHDEF{$tmp} = 1;
+			}
+		}
+	}
+	@ARR_HELP2 = sort {$a <=> $b} @ARR_HELP;
+	foreach $i (@ARR_HELP2) {
+		if ($i ne "") {
+			if ($i < 501) {
+				notice("\002$i\002: $SHELP{$i}");
+			}
+			elsif ($i > 500) {
+				if(isoper_nick($nick)) {
+					if (($CS_SHOW) && ($CSERVICELVL{$numnick} ne "")) {
+						notice("\026Cservice Commands\026:");
+						undef $CS_SHOW;
+					}
+					if ($CSERVICELVL{$numnick} >= $i) {
+						notice("\002$i\002: $SHELP{$i}");
+					}
+				}
+			}
+		}
+	}
+	undef %SHELP;
+	undef @ARR_HELP;
+	undef %SHDEF;
+	undef @ARR_HELP2;
+}
+elsif ($tok[1] ne "") {
+	$HELPCOM = uc($tok[1]);
+	if (!(-e "./HELP/CHANSERV/$HELPCOM"))
+	{
+		badcommand($HELPCOM);
+	}
+	else {
+		notice("\026$HELPCOM - $VER\026");
+		notice("\002=================================================================\002");
+		notice("SYNTAX: $HELP{$CHANSERV}->{$HELPCOM}->{SYNTAX}");
+		notice(" ");
+		open(COMHELP, "./HELP/CHANSERV/$HELPCOM");
+		@COMHELP = <COMHELP>;
+		close(COMHELP);
+		foreach $i (@COMHELP) {
+			$i =~ s/\n//g;
+			$i =~ s/\r//g;
+			$i =~ s/%CS%/$CHANSERV/gi;
+			$i =~ s/%OS%/$OPERSERV/gi;
+			$i =~ s/EXAMPLE:/\026EXAMPLE\026:/g;
+			$i =~ s/SEEALSO:/\026SEEALSO\026:/g;
+
+			notice("$i");
+		}
+		notice("\002=================================================================\002");
+
+	}
+}

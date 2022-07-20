@@ -1,0 +1,7 @@
+Removes a permanent ban from the channel records.
+If you specify the <NUMBER>, it will remove the X permban, which is listed in 
+the PERBANS command.
+
+EXAMPLE: /msg %CS% REMPERMBAN #Gworld 4
+         /msg %CS% REMPERMBAN #Gworld *!*lamer@Lamer.Host.Com
+SEEALSO: ADDPERMBAN PERMBANS

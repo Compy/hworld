@@ -1,0 +1,7 @@
+This command will unregister your nickname. Once unregistered, you will lose all you channels
+owned and all the channel accesses under your nickname. Once unregistered, the change cannot
+be reversible, so please think wisely before using this command. If you need more advice, pls
+contact a Cservice Admin via the ADMIN command.
+
+EXAMPLE: /msg %CS% UNREGISTER MySeCrEtPaSs
+SEEALSO: REGISTER DROP

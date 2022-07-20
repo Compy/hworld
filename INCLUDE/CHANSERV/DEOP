@@ -1,0 +1,58 @@
+if (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+	$count = 0;
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregistered_chan($i))) {
+			if ((getchlevel($i,$ISAUTH{$numnick})) && (ison_user($i,$nick)) && (isop_user($i,$nick))) {
+				deop_nick($i,$nick);
+				out("$CSNUM M $i -o $numnick");
+				$count++;
+			}
+		}
+	}
+	notice("Removed your OPS in \002$count\002 channels.");
+}
+elsif ($tok[2] eq "") {
+	if (!(isregistered_chan($tok[1]))) {
+		error($tok[1],"is not a registered channel.");
+	}
+	elsif (!(getchlevel($tok[1],$ISAUTH{$numnick}))) {
+		error($tok[1],"insufficient access to use that command.");
+	}
+	elsif (!(ison_user($tok[1],$nick))) {
+		error($tok[1],"you are not on that channel.");
+	}
+	elsif (!(isop_user($tok[1],$nick))) {
+		error($tok[1],"you are not an OP on that channel.");
+	}
+	else {
+		deop_nick($tok[1],$nick);
+		out("$CSNUM M $tok[1] -o $numnick");
+		notice("Removed your OPS on \002$tok[1]\002.");
+                          
+	}
+}
+else {
+        if (!(isregistered_chan($tok[1]))) {
+                error($tok[1],"is not a registered channel.");
+        }
+        elsif (!(getchlevel($tok[1],$ISAUTH{$numnick}))) {
+                error($tok[1],"insufficient access to use that command.");
+        }
+	elsif (!(isonline_nick($tok[2]))) {
+		error($tok[2],"is not online.");
+	}
+        elsif (!(ison_user($tok[1],$tok[2]))) {
+                error($tok[2],"is not on that channel.");
+        }                                                                      
+        elsif (!(isop_user($tok[1],$tok[2]))) {
+                error($tok[1],"$tok[2] is not an OP on that channel.");
+        }       
+	else {
+		out("$CSNUM M $tok[1] -o $NNUMERIC{lc($tok[2])}");
+		deop_nick($tok[1],$tok[2]);
+		notice("Removed \002$tok[2]\002 OPS on \002$tok[1]\002");
+	}
+}

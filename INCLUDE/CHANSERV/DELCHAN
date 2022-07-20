@@ -1,0 +1,23 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        notice("\002$tok[1]\002 - is not registered.");
+}
+else {
+        delete($CDATA{lc($tok[1])});
+        out("$CSNUM L $tok[1] :Channel has been unregistered by channel services.");
+        notice("Channel \002$tok[1]\002 is been successfully deleted");          
+        $tmp = $ISAUTH{$numnick}
+        cservmsg("$tmp \002DELCHAN\002 $tok[1].");           
+	&addlog;
+}
+
+
+

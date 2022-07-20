@@ -1,0 +1,4 @@
+This command is used when you are insearch of a cservice admin. It will list all cservice admins
+currently online.
+
+EXAMPLE: /msg %CS% ADMINS

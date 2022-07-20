@@ -1,0 +1,4 @@
+Removes channel operator status from a user in the specified #channel.
+
+EXAMPLE: /msg %OS% DEOP #CHAT Lamer
+SEEALSO: OP CLEARCHAN

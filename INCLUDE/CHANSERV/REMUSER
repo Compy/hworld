@@ -1,0 +1,47 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[2] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (!(isregistered_nick($tok[2]))) {
+	error($tok[2],"is not a registered nickname.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+elsif (&returnchlevel($tok[1],$tok[2]) >= &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	notice("You cannot remove a user with level greater or equal to yourself.");
+}
+else {
+	$tmp = $CDATA{lc($tok[1])}->{USERS};
+	$tmpend = "";
+	$found = 0;
+      @tmpusers = split(/ /,$tmp);
+      foreach $i (@tmpusers) {
+		if ($i ne "") {
+			($getchlevel_nick,$getchlevel_level,$getchlevel_adder) = split(/\@/, $i, 3);
+			if (lc($getchlevel_nick) eq lc($tok[2])) {
+				$found = 1;
+				notice("Removed $tok[2] from $tok[1].");
+			}
+			elsif (lc($getchlevel_nick) ne lc($tok[2])) {
+				$tmpend .= "$getchlevel_nick\@$getchlevel_level\@$getchlevel_adder ";
+			}
+		}
+      }
+	$CDATA{lc($tok[1])}->{USERS} = $tmpend;
+      if ($found == 0) {
+		notice("Unable to locate $tok[2] in $tok[1] access list.");
+      }                                                                      
+	undef $tmpend;
+	undef $found;
+	undef $tmp;
+	undef $getchlevel_nick;
+	undef $getchlevel_level;
+	undef $getchlevel_adder;
+}
+

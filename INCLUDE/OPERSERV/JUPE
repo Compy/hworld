@@ -1,0 +1,90 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	if ($tok[1] =~ /^[0-9]+$/) { ## a integer numeric is specified
+		(undef,$JUPE_NUM,$JUPE_REASON) = split(/ /,$msg,3);
+		if ($JUPE_REASON eq "") {
+			syntaxerr;
+		}
+		else {
+			$JUPE_FOUND=0;
+			foreach $i (keys %SDATA) {
+				$i =~ s/\n//;
+				$i =~ s/\r//;
+				if (($i ne "") && ($SDATA{lc($i)}->{DEFINE} == 1)) {
+					if ($JUPE_NUM == $SDATA{$i}->{NUMERIC}) {
+						if (isserver($i)) {
+							$t = time;
+							&out("$GWNUM SQ $i 0 :Server has been jupitered - $JUPE_REASON");
+						}
+						$t = time;
+						$JUPE_SERVER = $i;
+						$JUPE_NUMERIC = int2num($JUPE_NUM);
+						out("$GWNUM S $JUPE_SERVER 1 $t $t J10 $JUPE_NUMERIC\]\]\] :\002JUPE\002 - $JUPE_REASON");
+## Reg server
+						$JUPE{lc($JUPE_SERVER)}->{DEFINE} = 1;
+						$SINFO{$JUPE_NUMERIC}->{SERVERNAME} = $JUPE_SERVER;
+						$SINFO{$JUPE_NUMERIC}->{HUB} = $GWNUM;
+						$SINFO{$JUPE_NUMERIC}->{COUNT} = 0;
+						$SNUMERIC{lc($JUPE_SERVER)} = $JUPE_NUMERIC;
+## End of reg server
+						getinfo_nick($nick);
+						wallops($OPERSERV,"$nick\[$getinfo_halfhost\] \002JUPE\002 $JUPE_SERVER ($JUPE_REASON)");
+						$JUPE_FOUND=1;
+						break;
+					}
+				}
+			}						
+			if($JUPE_FOUND == 0) {
+				notice("Unable to locate a server with numeric \002$JUPE_NUM\002 in database.");
+			}
+		}
+	}
+	elsif ($tok[1] =~ /\./) { ## is a server
+		(undef,$JUPE_SERVER,$JUPE_NUM,$JUPE_REASON) = split(/ /,$msg,4);
+		if ($JUPE_REASON eq "") {
+			syntaxerr;
+		}
+		elsif ($JUPE_NUM !~ /\:/) {
+			syntaxerr;
+		}
+		else {
+			($KONST,$JUPE_NUMERIC) = split(/:/,$JUPE_NUM);
+			if (($JUPE_NUMERIC !~ /^[0-9]+$/) || ($JUPE_NUMERIC < 0) || ($JUPE_NUMERIC > 63)) {
+				error($JUPE_NUMERIC,"is not a valid server numeric, it must be between the range of 0 to 64.");
+			}
+			elsif (isserver($JUPE_SERVER)) {
+				error($JUPE_SERVER,"is not an unknown server");
+			}
+			elsif (isserver_num(int2num($JUPE_NUMERIC))) {
+				notice("Server numeric $JUPE_NUMERIC is already in use.");
+			}
+			else {
+				$t = time;
+				$JUPE_NUMERIC = int2num($JUPE_NUMERIC);
+				out("$GWNUM S $JUPE_SERVER 1 $t $t J10 $JUPE_NUMERIC\]\]\] :\002JUPE\002 - $JUPE_REASON");
+## Reg server
+				$JUPE{lc($JUPE_SERVER)}->{DEFINE} = 1;
+				$SINFO{$JUPE_NUMERIC}->{SERVERNAME} = $JUPE_SERVER;
+				$SINFO{$JUPE_NUMERIC}->{HUB} = $GWNUM;
+				$SINFO{$JUPE_NUMERIC}->{COUNT} = 0;
+				$SNUMERIC{lc($JUPE_SERVER)} = $JUPE_NUMERIC;
+## End of reg server
+				getinfo_nick($nick);
+				wallops($OPERSERV,"$nick\[$getinfo_halfhost\] \002JUPE\002 $JUPE_SERVER ($JUPE_REASON)");
+			}
+			undef $JUPE_SERVER;
+			undef $JUPE_NUMERIC;
+			undef $JUPE_NUM;
+			undef $JUPE_REASON;
+			undef $KONST;
+			undef $t;
+		}
+	}
+	else {
+		syntaxerr;
+	}
+	&addlog;
+
+}

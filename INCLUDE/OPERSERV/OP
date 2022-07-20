@@ -1,0 +1,23 @@
+if (!(getoperlevel($numnick))) {
+	error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[2] eq "") {
+        syntaxerr;
+}   
+elsif (!(isonline_nick($tok[2]))) {
+	error($tok[2],"is not online.");
+}
+elsif (!(ison_user($tok[1],$tok[2]))) {
+	error($tok[2],"is not on that channel.");
+}
+elsif (isop_user($tok[1],$tok[2])) {
+	error($tok[1],"$tok[2] is already an OP on that channel.");
+}                                                                      
+else {
+	out("$GWNUM M $tok[1] +o $NNUMERIC{lc($tok[2])}");
+      op_nick($tok[1],$tok[2]);
+      notice("Gave \002$tok[2]\002 OPS on \002$tok[1]\002");         
+	getinfo_nick($tok[2]);
+	wallops($OPERSERV,"$nick \002OP\002 $tok[1] $tok[2]\[$getinfo_halfhost\].");
+	&addlog;
+}                                                                      

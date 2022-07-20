@@ -1,0 +1,7 @@
+Used to get some information of a particular server which is currently
+linked to the network. Wildcards are accepted.
+
+EXAMPLE: /MSG %OS% SHOW leaf.gworld.org
+         /MSG %OS% SHOW singapore.*
+
+SEEALSO: SPLITEDSERVERS

@@ -1,0 +1,4 @@
+List all registered users in the channel access list.
+
+EXAMPLE: /msg %CS% LISTUSERS #Gworld
+SEEALSO: ADDUSER REMUSER

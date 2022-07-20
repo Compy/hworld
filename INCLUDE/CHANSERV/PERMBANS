@@ -1,0 +1,41 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	$tmp = $CDATA{lc($tok[1])}->{PERMBANS};
+	$count = "00";
+      @tmppermbans = split(/ƒ/,$tmp);
+	notice("\002Channel:\002 $tok[1]");
+	notice("================================================");
+      foreach $i (@tmppermbans) {
+		if ($i ne "") {
+			($pb_mask,$pb_setter,$pb_date,$pb_reasons) = split(/\±/, $i, 4);
+			$count++;
+                  notice(" \002$count\.\002 $pb_mask \002-\002 $pb_setter");
+			$tmpp = localtime($pb_date);
+			notice("     $pb_reasons \[$tmpp\]");
+		}
+
+      }
+	notice("\002Total PERMBANS:\002 $count");
+	notice("================================================");
+	undef $tmpp;
+	undef $pb_mask;
+	undef $pb_setter;
+	undef $pb_date;
+	undef $pb_reasons;
+	undef $count;
+	undef @tmppermbans;
+}
+
+
+

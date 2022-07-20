@@ -1,0 +1,6 @@
+&config;
+&gethelp;
+undef %SDATA;
+&synch_servers;
+notice("Reloaded configuration file ...");
+

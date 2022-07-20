@@ -1,0 +1,10 @@
+Registers your current nickname with services. After your nickname is registered, 
+you will be able to register channels under your record and store multiple channel
+access levels. Once registered, you must authenticate with services everytime you log
+onto this IRC network, which is done by the AUTH command. 
+
+Nicknames unused for 21 days will be automatically deregistered.
+Pls write your nickname password down somewhere as once lost is very difficult to recover.
+
+EXAMPLE: /msg %CS% REGISTER MySeCrEtPaSs
+SEEALSO: UNREGISTER AUTH DEAUTH REGCHAN ACCESS

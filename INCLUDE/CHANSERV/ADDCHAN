@@ -1,0 +1,36 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[2] eq "") {
+        syntaxerr;
+}
+elsif (isrestricted_chan($tok[1])) {
+        notice("\002$tok[1]\002 - is being restricted from registration.");
+}
+elsif (isregistered_chan($tok[1])) {
+        notice("\002$tok[1]\002 - is already registered.");
+}
+elsif (!(isregistered_nick($tok[2]))) {
+	error($tok[2],"is not a registered nickname.");
+}
+elsif (!(isvalid($tok[1]))) {
+        notice("\002$tok[1]\002 - is not a valid channel name.");
+}
+elsif ($tok[1] =~ /[\}\{\(\)\]\[]/ig) {
+        notice("\002$tok[1]\002 - Invalid characters inside channel name");
+}                                                                              
+elsif (length($tok[1]) > 25) {
+        notice("\002$tok[1]\002 - Channel name over MAX of 25 characters");
+} 
+else {
+	&addchan(lc($tok[1]),lc($tok[2]));
+	notice("Added channel \002$tok[1]\002 under channel owner \002$tok[2]\002.");
+	$tmp = $ISAUTH{$numnick}
+	cservmsg("$tmp \002ADDCHAN\002 $tok[1], owner is $tok[2].");
+	&addlog;
+}
+
+

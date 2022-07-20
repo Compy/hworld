@@ -1,0 +1,6 @@
+Forces channel services to lock the particular channel mode. If nothing is specified,
+LOCKMODE function is turned off for the channel.
+
+EXAMPLE: /msg %CS% LOCKMODE #Gworld +nt
+         /msg %CS% LOCKMODE #Gworld +ntmi
+SEEALSO: LOCKTOPIC STATUS

@@ -1,0 +1,62 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+else {
+	$FOUND=0;
+	if ($tok[1] !~ /^[0-9]+$/) { ## servername is specified
+		open(FH,"./DB/servers.db");
+		@FH = <FH>;
+		close(FH);
+		open(WFH,">./DB/servers.db");
+		foreach $i (@FH) {
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			if ($i ne "") {
+				($WFH_SERVER,undef,undef) = split(/ /,$i,3);
+				if (lc($WFH_SERVER) ne lc($tok[1])) {
+					printf(WFH "$i\n");
+				}
+				else { $FOUND=1; }
+			}
+		}
+		close(WFH);
+		undef %SDATA;
+		&synch_servers;
+		if ($FOUND == 1) {
+			notice("Removed \002$tok[1]\002 from server database.");
+		}
+		else {
+			notice("Unable to locate server in database.");
+		}
+	}
+	else { ## Numeric is specified.
+		open(FH,"./DB/servers.db");
+		@FH = <FH>;
+		close(FH);
+		open(WFH,">./DB/servers.db");
+		$FOUND=0;
+		foreach $i (@FH) {
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			if ($i ne "") {
+				($WFH_SERVER,undef,$WFH_NUM) = split(/ /,$i,3);
+				if (lc($WFH_NUM) ne lc($tok[1])) {
+					printf(WFH "$i\n");
+				}
+				else { $WFH_RMSERV = $WFH_SERVER; $FOUND=1; }
+			}
+		}
+		close(WFH);
+		undef %SDATA;
+		&synch_servers;
+		if ($FOUND == 1) {
+			notice("Removed \002$WFH_RMSERV\002 from server database.");
+		}
+		else {
+			notice("Unable to locate server in database.");
+		}
+	}
+}

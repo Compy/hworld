@@ -1,0 +1,5 @@
+Searches the network for users which matches the specified <user@host>.
+
+EXAMPLE: /msg %OS% SPEW *.singnet.com.sg
+         /msg %OS% SPEW *dude@*.severious.com.sg
+         /msg %OS% SPEW *lam*r*!*du*@*.lamer.com 

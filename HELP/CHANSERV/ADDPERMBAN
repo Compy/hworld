@@ -1,0 +1,5 @@
+This command is used to add a permanent ban on the channel. This ban will be remembered by %CS%
+and whenever a user with the matching hostmask joins the channel, %CS% will automatically 
+active the ban and kick the user out.
+
+SEEALSO: REMPERMBAN PERMBANS

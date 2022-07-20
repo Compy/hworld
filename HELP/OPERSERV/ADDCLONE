@@ -1,0 +1,9 @@
+Adds a clone exemption into database. Any connections with the exempted mask 
+will not be shown in the SHOWCLONES and clones detection.
+Note that wildcards are NOT accepted.
+
+EXAMPLE: /msg %OS% ADDCLONE noclone.net
+         /msg %OS% ADDCLONE network-services.org
+
+SEEALSO: REMCLONE CLONELIST
+

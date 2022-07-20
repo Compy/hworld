@@ -1,0 +1,8 @@
+This command is used to clear the channel's bans/modes/ops.
+These are the descriptions of the options:
+	o - Clears all channel operators, even yourself.
+	m - Overrides LOCKMODE function(if setted on), and clears ALL channel modes.
+	b - Clears all active channel bans.
+If an option is not specified, the defaults(omb) will be used.
+
+EXAMPLE: /msg %CS% CLEAR #Gworld omb

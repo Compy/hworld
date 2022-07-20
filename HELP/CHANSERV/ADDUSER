@@ -1,0 +1,6 @@
+This command adds a registered nickname into the channel access list. You cannot add a level 
+higher then yourself or of the same level as you. The channel access level ranges from 
+100 to 499, level 500 is the channel owner.
+
+EXAMPLE: /msg %CS% ADDUSER #Gworld GeNeXiS 300
+SEEALSO: REMUSER LISTUSERS ACCESS

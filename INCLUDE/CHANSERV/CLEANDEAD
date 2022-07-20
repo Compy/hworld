@@ -1,0 +1,35 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	$ccount=0;
+	$ncount=0;
+	foreach $i (keys %NDATA) {
+		if (($i ne "") && (isregistered_nick($i)) && ($NDATA{lc($i)}->{NOEXPIRE} != 1)) {
+			$lastused = $NDATA{$i}->{LASTAUTH};
+			$lastused = time - $lastused;
+			if ($lastused >= $NICKPURGE) {
+				&delnick($i);
+				$ncount++;
+			}
+		}
+	}
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregisteredcase_chan($i)) && ($CDATA{lc($i)}->{NOEXPIRE} != 1)) {
+			$lastused = $CDATA{$i}->{LASTUSED};
+			$lastused = time - $lastused;
+			if ($lastused >= $CHANPURGE) {
+				delete($CDATA{$i});
+				out("$CSNUM L $i :Channel has been PURGED by channel services.");
+				$ccount++;
+			}
+		}
+	}
+	$tmp = $ISAUTH{$numnick};
+	cservmsg("$tmp issued \002CLEANDEAD\002, purged \002$ncount\002 nicknames, \002$ccount\002 channels.");
+	notice("Purged \002$ncount\002 nicknames, \002$ccount\002 channels.");
+	&addlog;
+}

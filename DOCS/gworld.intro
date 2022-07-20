@@ -1,0 +1,130 @@
+G-World IRC Services :: v1.0
+
+Description:
+
+G-World 1.0 is a Channel/Nickname/Operator IRC Services Package. It has
+been tested on IRCu2.10.10.x, with extended numerics. It allows users to
+register their nicknames and channels, and have full control over them.
+GWorld is made because most IRCu services doesn't have nickname services,
+thus GWorld are for those people who are used to having nickname services,
+such as DALnet.
+
+Commands summary:
+
+User commands:
+LEVEL 0:
+REGISTER <PASSWD> - Register your nickname to database.
+UNREGISTER <PASSWD> - Delete your nickname from database.
+AUTH <RNICK> <PASSWD> - Authenticate yourself to services, to access channel accesses.
+DEAUTH - De-Authenticate.
+KILL <RNICK> <PASSWD> - Used to kill a user using your nickname or to kill a ghost.
+INFO <NICK> - Returns information about a registered nickname.
+WHOIS <USER> - Returns who the user is authenticated as.
+REGCHAN <#CHANNEL> - Register a channel under your nickname.
+ACCESS [#CHANNEL] - Checks all your access levels in channels and to services, or to the specified [#CHANNEL].
+STATUS <#CHANNEL> - Returns information about a registered channel.
+COUNT - Returns Network's CURRENT and MAX user count.
+ADMINS - List all cservice admins.
+
+LEVEL 100:
+OP [#CHANNEL] [NICKNAME] - Request OPs in all channels you are on/in a specified channel/OP another user.
+DEOP [#CHANNEL] [NICKNAME] - Same as OP, but DEOP now.
+CHANBANS <#CHANNEL> - List channel bans.
+INVITE <#CHANNEL> - Invite yourself into a channel.
+TOPIC <#CHANNEL> <CHANTOPIC> - Makes channel services sets the channel topic.
+
+LEVEL 200:
+KICK <#CHANNEL> <NICKNAME> <REASON> - Kick a user from a channel.
+KBAN <#CHANNEL> <NICKNAME> <REASON> - Kick + Ban a user from a channel.
+CYCLE <#CHANNEL> - Force channel services to cycle the channel.
+
+LEVEL 300:
+CLEAR <#CHANNEL> <o|m|b> - Clears o: OPS m: MODES b: BANS on a channel.
+ADDPERMBAN <#CHANNEL> <NICK|NICK!USER@HOST> <REASONS> - Adds a Channel Permanent Ban to channel services's database.
+REMPERMBAN <#CHANNEL> <NUMBER|NICK!USER@HOST> - Removes a Channel Permament Ban.
+PERMBANS <#CHANNEL> - Lists all PERMBANS for a channel.
+
+LEVEL 400:
+ADDUSER <#CHANNEL> <RNICK> <LEVEL[100-499]> - Give a registered nickname access to the channel.
+REMUSER <#CHANNEL> <RNICK> - Removes the access of a registered nickname from the channel.
+SETUSER <#CHANNEL> <RNICK> <NEWLEVEL> - Changes the access of a registered nickname to the channel.
+LISTUSERS <#CHANNEL> - Lists all Access Holders in the channel.
+LOCKMODE <#CHANNEL> [+ntimslpk] - Forces channel services to lock the particular channel mode. If nothing is specified, LOCKMODE function is turned off for the channel.
+LOCKTOPIC <#CHANNEL> [CHANNEL TOPIC] - Forces channel services to lock the particular channel topic. If nothing is specified, LOCKTOPIC function is turned off for the channel.
+SETINFO <#CHANNEL> [CHANNEL INFO] - Sets the Channel Info seen in the STATUS command and the OnJoinGreet msg. If nothing is specified, ChanInfo will be resetted to NULL.
+
+LEVEL 500:
+DROP <#CHANNEL> <OWNERPASS> - UnRegister a channel.
+
+IRCops/Cservice commands:
+
+LEVEL 600:
+STATS - Returns network/services statistics.
+[w]CYCLE <#CHANNEL> - Forces channel services to cycle the specified channel.
+[O]SHOWCLONES - Matches all network clones.
+[O]SPEW <USER@HOST> - Matches current network users with the specified hostmask.
+[O]INVITE <#CHANNEL> - Invites yourself into a channel.
+[Owl]OP <#CHANNEL> <NICKNAME> - OPs a user on a channel.
+[Owl]DEOP <#CHANNEL> <NICKNAME> - DEOPs a user on a channel.
+[Owl]KICK <#CHANNEL> <NICKNAME> <REASON> - Kicks a user from a channel with the given reason.
+[Ol]OMSG <MSG> - Sends a MSG to all IRCops in the network.
+
+LEVEL 700:
+SCAN <USER@HOST> - Searches the database for nicknames whose lastauthhost matches <USER@HOST>.
+LISTNICKS <WILDCARD> - Searches the database for nicknames which matches the <WILDCARD>.
+LISTCHANS <WILDCARD> - Searches the database for channels which matches the <WILDCARD>.
+[Owl]ADDGLINE <USER@HOST|NICKNAME> [-t TIME] <REASON> - Adds a GLINE (Global BAN) on the given hostmask. If a nickname is specified, it will add GLINE according to the *@HOST.MASK of the client. 
+	If a -t parameter is specified, it will add glines according to the number of hours stated.
+	EG: ADDGLINE GeNeXiS -t 5 Stay out of the network :: This will add a 5 hour GLINE. The MAX time limits for this function is 48 hours.
+	If the -t parameter is not specified, it will add a GLINE for 3600 seconds(1 hour).
+[Owl]REMGLINE <USER@HOST|NUMBER> - Removes a GLINE from the network and database.
+[O]GLIST - List all glines.
+[Ol]ADDCLONE <MASK> - Adds a MASK so that services will not recognise it as a clone.
+[Ol]REMCLONE <MASK|NUMBER> - Removes a MASK so that services will recognise it as a clone.
+[O]CLONELIST - List all MASKS exempted from clone detection.
+[O]SPLITEDSERVERS - List all servers currently splited from network or is unknown to services.
+[O]SHOW <SERVER> - Returns some info of a linked server
+
+LEVEL 800:
+[cl]ADDNICK <NICKNAME> <PASSWD> - Adds a registered nickname into database.
+[cl]DELNICK <RNICK> - Deletes/Unregister a nickname.
+[cl]ADDCHAN <#CHANNEL> <OWNER> - Register a channel under the specified <OWNER>.
+[cl]DELCHAN <#CHANNEL> - Deletes/DROP a channel.
+[Owl]CLEARCHAN <#CHANNEL> <o|m|b|u> - Clears a channel's o:OPS b:BANS m:MODES u:USERS on any channel *Need not be registered*.
+
+LEVEL 900:
+LISTDEAD - Lists all expired NICKNAME and CHANNELS.
+[cl]CLEANDEAD - Delete all expired NICKNAME and CHANNELS.
+[cl]RESTRICT <NICKNAME|#CHANNEL> <REASON> - Prevents a NICKNAME or CHANNEL to be registered by anybody.
+[cl]NOEXPIRE <NICKNAME|#CHANNEL> - Stops the NICKNAME/CHANNEL from getting expired.
+[O]ADDSERVER <SERVERNAME> <NUMERIC[0-64]> <ADMINISTRATOR> - Adds a server into database
+[O]DELSERVER <SERVERNAME|NUMERIC> - Deletes a server from record
+[O]LISTSERVERS - Lists all servers in database.
+[Owl] JUPE <SERVERNAME|INT NUMERIC> [n:intnum] <REASONS> - Jupes a server
+[O]JLIST - Lists all JUPITERED SERVERS.
+LEVEL 1000:
+CSET <RNICK> <LEVEL[600-999]> - Gives a registered nickname cservice access.
+[Ol]SAVE - Saves database.
+[Ol]BACKUP - Make a BACKUP copy of services' database.
+[Owl]SHUTDOWN <REASON> - Shuts services down, but it will do a SAVE first.
+
+
+Registered nicknames with level 800 and above, will be open to access all commands in a registered
+channel, except for the DROP command, which can be replaced by the DELCHAN command.
+The letterings in the [] are the special functions of the command.
+w - Sends WALLOPS
+c - Sends CSERVICE MSG (LEVEL > 800)
+l - Logs
+O - Command will be on Gworld (OperServ)
+
+Directory Structure
+Gworld :: Gworld binary/Gworld config/Gworld MOTD/README.1ST
+`- DOCS :: Documents/readme/development references/TODO/CHANGES
+`- DB :: channels/nicknames/glines/restrict/permbans/servers/clones database
+`- LOGS :: OperServ/Cservice command logs
+`- INCLUDE :: Commands
+   `- OPERSERV :: OperServ module commands
+   `- CHANSERV :: ChanServ module commands
+`- HELP :: Helpfiles
+   `- OPERSERV :: OperServ Help Files/syntax.dat
+   `- CHANSERV :: ChanServ Help Files/syntax.dat

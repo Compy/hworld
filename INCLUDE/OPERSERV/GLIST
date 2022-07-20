@@ -1,0 +1,21 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	notice("\026Network active GLINES:      $VER\026");
+	$glcount=0;
+      foreach $gl (keys %GLINE) {
+      	$gl =~ s/\n//;
+		$gl =~ s/\r//;
+		if (($gl ne "") && (isgline($gl))) {
+			$setter = $GLINE{$gl}->{SETTER};
+			$expiry = $GLINE{$gl}->{TIME} + $GLINE{$gl}->{DURATION};
+			$expiry = localtime($expiry);
+			$reason = $GLINE{$gl}->{REASON};
+			$glcount++;
+			notice("\026$glcount.\026 $gl \[$setter\]");
+			notice("   Expire: $expiry");
+			notice("   Reason: $reason");
+		}
+	}
+}

@@ -1,0 +1,4 @@
+Adds a registered nickname into services's records. 
+
+EXAMPLE: /msg %CS% ADDNICK GeNeXiS HiSeCrEtpAsS
+SEEALSO: DELNICK

@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+print "G-World v1.0 [IRC Services Package]\n";
+print "MAKEADMIN - Tool for adding Cservice Admin for services package.\n";
+print "Written and developed by Chye Nyit Whon (chyenw\@singnet.com.sg)\n";
+print "All rights reserved.\n";
+print "Send all BUGS/SUGGESTIONS/COMMENTS to the above email.\n";
+print " \n";
+print "HOWTOUSE:\n";
+print "1) Do not start GWorld yet, you need to add yourself a registered\n";
+print "   nickname with cservice level of 1000.\n";
+print "2) Enter the nickname you would like to register.\n";
+print "3) Enter the password you would like for the nickname.\n";
+print "4) And you are DONE! The nickname would be added into the database.\n";
+print "   All you need now is to load GWorld and authenticate.\n";
+print "--------------------------------------------------------------------\n";
+print "STEP 1: Enter your registered nickname: ";
+$NICKTOREG = <STDIN>;
+chop $NICKTOREG;
+print "Nickname $NICKTOREG \-\> OK\!\n";
+print "STEP 2: Enter your password: ";
+$NICKPASS = <STDIN>;
+chop($NICKPASS);
+$ENCNICKPASS = crypt($NICKPASS,"GW");
+print "Encrypted $NICKPASS \-\> $ENCNICKPASS\n";                 
+print "Adding nickname handle ...\n";
+open (FH,">>./DB/nicks.db");
+$t = time;
+print FH "$NICKTOREGž$ENCNICKPASSž$NICKTOREG\!gworld\@new.gworld.admin.comž$tž$tž1000ž0\n";
+close (FH);
+print "Successful !\n";
+

@@ -1,0 +1,5 @@
+Unregisters a channel which is under your nickname records. Once unregistered, it will lose 
+its users database, and cannot be recovered.
+
+EXAMPLE: /msg %CS% DROP #Gworld MyNickNamePass
+SEEALSO: REGCHAN

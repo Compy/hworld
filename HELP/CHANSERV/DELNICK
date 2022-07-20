@@ -1,0 +1,5 @@
+Deletes a registered nickname from services records. Used to get rid of multiple nickname
+registrants.
+
+EXAMPLE: /msg %CS% DELNICK GeNeXiS
+SEEALSO: ADDNICK

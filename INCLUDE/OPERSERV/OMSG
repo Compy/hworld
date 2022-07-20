@@ -1,0 +1,11 @@
+if (!(getoperlevel($numnick))) {
+	error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}   
+else {
+	(undef,$string) = split(/ /,$msg,2);
+	opermsg("\002\<\002OperMSG\002\:\002$nick\002\>\002 $string");
+}                                                                      
+

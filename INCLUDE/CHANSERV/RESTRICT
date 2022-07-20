@@ -1,0 +1,81 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	if ($tok[1] eq "") {
+		notice("\002Listing restricted handles:\002");
+		notice("\002Nicknames:\002");
+		foreach $i (keys %RESTRICT) {
+			if (($i ne "") && (isrestricted_nick($i)) && (!(isvalid($i)))) {
+				$tmpreasons = $RESTRICT{$i}->{REASON};
+				notice(" $i - $tmpreasons");
+			}
+		}
+		notice("\002Channels:\002");
+		foreach $i (keys %RESTRICT) {
+			if (($i ne "") && (isrestricted_chan($i)) && (isvalid($i))) {
+				$tmpreasons = $RESTRICT{$i}->{REASON};
+				notice(" $i - $tmpreasons");
+			}
+		}
+		notice("\002End of list\002");
+	}
+	else {
+		if (isvalid($tok[1])) {
+			if (isregistered_chan($tok[1])) {
+				error($tok[1],"is already registered, you cannot restrict a registered channel.");
+			}
+			else {
+				if ($RESTRICT{lc($tok[1])}->{DEFINE} == 1) {
+					$RESTRICT{lc($tok[1])}->{DEFINE} = 0;
+					delete($RESTRICT{lc($tok[1])});
+					notice("$tok[1] is now \002open\002 for registration.");
+				}
+				elsif ($RESTRICT{lc($tok[1])}->{DEFINE} == 0) {
+					if ($tok[2] eq "") {
+						syntaxerr;
+					}
+					else {
+						(undef,undef,$tmpreasons) = split(/ /,$msg,3);
+						$RESTRICT{lc($tok[1])}->{DEFINE} = 1;
+						$RESTRICT{lc($tok[1])}->{REASON} = $tmpreasons;
+						notice("$tok[1] is now \002closed\002 for registration - \002$tmpreasons\002");
+					}
+				}
+			}
+		}
+		else {
+			if (isregistered_nick($tok[1])) {
+				error($tok[1],"is already registered, you cannot restrict a registered nickname.");
+			}
+			else {
+				if ($RESTRICT{lc($tok[1])}->{DEFINE} == 1) {
+					$RESTRICT{lc($tok[1])}->{DEFINE} = 0;
+					delete($RESTRICT{lc($tok[1])});
+					notice("$tok[1] is now \002open\002 for registration.");
+				}
+				elsif ($RESTRICT{lc($tok[1])}->{DEFINE} == 0) {
+					if ($tok[2] eq "") {
+						syntaxerr;
+					}
+					else {
+						(undef,undef,$tmpreasons) = split(/ /,$msg,3);
+						$RESTRICT{lc($tok[1])}->{DEFINE} = 1;
+						$RESTRICT{lc($tok[1])}->{REASON} = $tmpreasons;
+						notice("$tok[1] is now \002closed\002 for registration - \002$tmpreasons\002");
+					}
+				}
+			}
+		}
+	}
+	&addlog;
+}
+
+
+
+
+
+

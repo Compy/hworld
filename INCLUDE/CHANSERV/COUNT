@@ -1,0 +1,2 @@
+notice("Current Network Users: \002$NWINFO{CURRENTUSERS}\002");
+notice("Max Network Users: \002$NWINFO{MAXUSERS}\002");

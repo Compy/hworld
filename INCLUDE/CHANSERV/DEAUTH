@@ -1,0 +1,8 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+else {
+	delete($ISAUTH{$numnick});
+	delete($CSERVICELVL{$numnick});
+	notice("De-AUTH Successful.");
+}

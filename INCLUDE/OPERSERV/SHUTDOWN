@@ -1,0 +1,14 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+	syntaxerr;
+}
+else {
+	(undef,$SHUTDOWN_REASONS) = split(/ /, $msg,2);
+	getinfo_nick($nick);
+	wallops($SERVERNAME,"\002SHUTDOWN\002 issued by $nick\[$getinfo_halfhost\] - $SHUTDOWN_REASONS");
+        &die($SHUTDOWN_REASONS);
+	&addlog;
+
+}

@@ -1,0 +1,17 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	$JL_COUNT=0;
+	notice("\026Searching for jupitered servers:\026");
+	foreach $i (keys %JUPE) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && ($JUPE{$i}->{DEFINE} == 1)) {
+			$JL_COUNT++;
+			notice("\002$JL_COUNT\.\002 $i");
+		}
+	}
+	notice("End of search");
+}
+		

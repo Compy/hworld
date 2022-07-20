@@ -1,0 +1,19 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isgline($tok[1]))) {
+	error($tok[1],"is not an active GLINE.");
+}
+else {
+	&remgline($tok[1]);
+	getinfo_nick($nick);
+	wallops($OPERSERV,"$nick\[$getinfo_halfhost\] remove \002GLINE\002 $tok[1]");
+	notice("GLINE \002$tok[1]\002 was removed.");
+	&addlog;
+
+}
+
+

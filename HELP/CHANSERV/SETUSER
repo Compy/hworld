@@ -1,0 +1,6 @@
+Changes the channel access of the registered user who already has access to the channel. You 
+cannot change the access of a user whose level is higher then yourself, or cannot change 
+his level to a level higher then yourself.
+
+EXAMPLE: /msg %CS% SETUSER #Gworld GeNeXiS 300
+SEEALSO: ADDUSER REMUSER LISTUSERS

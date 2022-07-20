@@ -1,0 +1,55 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	if ($tok[2] ne "") {
+		$LOCKMODE = $tok[2];
+	}
+	elsif ($tok[2] eq "") {
+		undef $LOCKMODE;
+	}
+	undef $FINALLM;
+	if ($LOCKMODE =~ /n/) {
+		$FINALLM .= "n";
+	}
+	if ($LOCKMODE =~ /t/) {
+		$FINALLM .= "t";
+	}
+	if ($LOCKMODE =~ /i/) {
+		$FINALLM .= "i";
+	}
+	if ($LOCKMODE =~ /s/) {
+		$FINALLM .= "s";
+	}
+	if ($LOCKMODE =~ /m/) {
+		$FINALLM .= "m";
+	}
+	if ($LOCKMODE =~ /p/) {
+		$FINALLM .= "p";
+	}
+
+	if ($FINALLM eq "") {
+		notice("Resetted LOCKMODE for \002$tok[1]\002.");
+		$CDATA{lc($tok[1])}->{LOCKMODE} = $FINALLM;
+	}
+	else {
+		$FINALLM = "\+$FINALLM";
+		notice("LOCKMODE for \002$tok[1]\002 changed to \'$FINALLM\'.");
+		$CDATA{lc($tok[1])}->{LOCKMODE} = $FINALLM;
+		&resetmodes($tok[1]);
+	}
+	undef $LOCKMODE;
+	undef $FINALLM;
+}
+
+
+

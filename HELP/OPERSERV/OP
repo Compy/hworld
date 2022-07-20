@@ -1,0 +1,4 @@
+Gives channel operator status to a user in the specified #channel.
+
+EXAMPLE: /msg %OS% OP #opers GeNeXiS
+SEEALSO: DEOP CLEARCHAN

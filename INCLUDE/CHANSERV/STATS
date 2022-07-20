@@ -1,0 +1,62 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	notice("\026$VER - Network/Config Statistics\026");
+	chop($tmp = `uname -sm`);
+	chop($tmp2 = `hostname`);
+	$tmp = "$tmp (\002$tmp2\002)";                                                 
+	notice("Running on: $tmp");
+	## network info
+	$count=0;
+	foreach $tmp (keys %NDATA) {
+		if (($tmp ne "") && (isregistered_nick($tmp))) {
+			$count++;
+		}
+	}
+	notice("Registered nicknames: \002$count\002");
+	$count=0;
+	foreach $tmp (keys %CDATA) {
+		if (($tmp ne "") && (isregisteredcase_chan($tmp))) {
+			$count++;
+		}
+	}
+	notice("Registered channels: \002$count\002");
+	notice("Current Network Users: \002$NWINFO{CURRENTUSERS}\002");
+	notice("Max Network Users: \002$NWINFO{MAXUSERS}\002");                        	
+	$count=0;
+	foreach $tmp (keys %SINFO) {
+		if (($tmp ne "") && ($SINFO{$tmp}->{SERVERNAME} ne "")) {
+			$count++;
+		}
+	}
+	notice("Servers linked: \002$count\002");                        	
+	gettime(time - $NWINFO{UPTIME});
+	notice("Services Uptime: $gettime_days\days $gettime_hours\hours $gettime_mins\mins $gettime_secs\secs");
+	@PROCESS = `ps ux`;
+	foreach $i (@PROCESS) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if ($i =~ /GWorld/g) {
+			(undef,undef,$CPU,$MEM,undef) = split(/\s* /,$i,5);
+			notice("CPU: \002$CPU\002\% MEM: \002$MEM\002\%.");
+		}
+	}
+	undef @PROCESS;
+	undef $CPU;
+	undef $MEM;
+	undef $i;                                                              
+## config info
+	notice("Max clones limit: \002$CLONELIMIT\002");
+	notice("Max chans owned/nick: \002$MAXCHANS\002");
+	notice("Max chan access holders: \002$MAXCHANUSERS\002");
+	notice("Cservice level: \002$CSERVICE\002");
+	&gettime($NICKPURGE);
+	notice("Nickname expiry limit: \002$gettime_days\002");
+	&gettime($CHANPURGE);
+	notice("Channel expiry limit: \002$gettime_days\002");
+}
+

@@ -1,0 +1,20 @@
+if ($tok[2] eq "") {
+	syntaxerr;
+}
+elsif(!(isregistered_nick($tok[1]))) {
+	error($tok[1],"is not a registered nickname.");
+}
+elsif(!(isonline_nick($tok[1]))) {
+	error($tok[1],"is not online.");
+}
+elsif(crypt($tok[2],"GW") ne $NDATA{lc($tok[1])}->{PASSWD}) {
+	notice("Incorrect password.");
+}
+elsif (lc($tok[1]) eq lc($nick)) {
+	notice("You cannot KILL yourself.");
+}
+else {
+	$tmp = $NNUMERIC{lc($tok[1])};
+	out("$GWNUM D $tmp :Nickname Enforced");
+#	&numquit($tmp);
+}

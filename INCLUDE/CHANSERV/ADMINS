@@ -1,0 +1,25 @@
+notice("\026Cservice Administrators\026:");
+notice("Nickname        Online");
+notice("==========================================================");
+foreach $i (keys %NDATA) {
+	if ($NDATA{$i}->{CSLVL} >= $CSERVICE) {
+		undef $tmponline;
+		$tmpspace = "";
+		foreach $x (keys %ISOPER) {
+			if (lc($ISAUTH{$x}) eq lc($i)) {
+				$tmponline = 1;
+				$tmpnick = $x;
+			}
+		}
+                $tmpspace = length($i);
+                $tmpspace = "16" - $tmpspace;
+                $tmpspace = " " x $tmpspace;       
+		if ($tmponline) {
+			getinfo_num($tmpnick);
+			notice("\002$i\002$tmpspace$getinfo_fullhost");
+		}
+		else {
+                        notice("\002$i\002$tmpspace\-");
+		}
+	}
+}

@@ -1,0 +1,18 @@
+if (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        error($tok[1],"is not a registered channel.");
+}
+elsif(&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");
+}
+else {                                                                       
+	out("$CSNUM L $tok[1]");
+	out("$CSNUM J $tok[1]");
+	out("$GWNUM M $tok[1] +o $CSNUM");
+	notice("Cycle completed !");
+}

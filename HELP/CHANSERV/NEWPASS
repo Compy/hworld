@@ -1,0 +1,5 @@
+
+This command is used to change your nickname password to something new.
+
+EXAMPLE: /msg %CS% NEWPASS mynewsecretpass
+SEEALSO: REGISTER UNREGISTER

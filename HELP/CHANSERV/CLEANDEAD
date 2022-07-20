@@ -1,0 +1,5 @@
+This command deletes all expire nicknames and channels. Once deleted cannot be restored, so 
+please use this command wisely.
+
+EXAMPLE: /msg %CS% CLEANDEAD
+SEEALSO: LISTDEAD

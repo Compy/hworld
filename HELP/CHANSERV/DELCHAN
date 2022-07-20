@@ -1,0 +1,5 @@
+Deletes a channel from services records. Used as a punishment for spammers and network offenders,
+or just as a way to remove an unwanted channel.
+
+EXAMPLE: /msg %CS% DELCHAN #Gworld2
+SEEALSO: ADDCHAN

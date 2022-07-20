@@ -1,0 +1,5 @@
+Deletes a server from the database. You can either specify the servername or the numeric.
+
+EXAMPLE: /msg %OS% DELSERVER 7
+         /msg %OS% DELSERVER IRC.Server.ORG
+SEEALSO: ADDSERVER SERVERLIST

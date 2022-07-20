@@ -1,0 +1,17 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_nick($tok[1]))) {
+        notice("\002$tok[1]\002 - is not registered.");
+}
+else {
+	&delnick($tok[1]);
+	notice("Nickname \002$tok[1]\002 is been successfully deleted");          
+	&addlog;
+}

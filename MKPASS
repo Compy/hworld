@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+
+print "G-World v1.0 [IRC Services Package]\n";
+print "MKPASS - Nickname database password encrypter.\n";
+print "Written and developed by Chye Nyit Whon (chyenw\@singnet.com.sg)\n";
+print "All rights reserved.\n";
+print "Send all BUGS/SUGGESTIONS/COMMENTS to the above email.\n";              
+print "---------------------------------------------------------------------\n";
+
+print "Input string to crypt: ";
+$PASS = <STDIN>;
+chop($PASS);
+$ENCPASS = crypt($PASS,"GW");
+print "Encrypted $PASS \-\> $ENCPASS\n";                               

@@ -1,0 +1,11 @@
+Gets services to give channel operator status to yourself or a user you specified.
+If [#CHANNEL] is not specified, it will OP you in all channels you have access in and is
+currently not a channel operator. If a [NICKNAME] is specified, it will OP that user in the
+channel. Else, it will OP you in the channel.
+
+EXAMPLE: /msg %CS% OP #Gworld GeNeXiS
+         /msg %CS% OP #Gworld
+         /msg %CS% OP
+SEEALSO: DEOP
+
+

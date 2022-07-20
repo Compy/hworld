@@ -1,0 +1,30 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	notice("\026Servers currently splited from the network:\026");
+	foreach $i (keys %SDATA) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && ($SDATA{$i}->{DEFINE} == 1) && (lc($i) ne lc($SERVERNAME))) {
+			if (!(isserver($i))) {
+				$tmp_num = $SDATA{$i}->{NUMERIC};
+				notice(" \002$i\002 \[$tmp_num\]");
+			}
+		}
+	}
+	notice("\026Unauthorised servers:\026");
+	foreach $i (keys %SINFO) {
+                $i =~ s/\n//;
+                $i =~ s/\r//;
+                if (($i ne "") && (isserver_num($i))) {               
+			$i = num2serv($i);
+			if ($SDATA{lc($i)}->{DEFINE} != 1) {
+				if ($JUPE{lc($i)}->{DEFINE} == 1) {
+					$i .= " (JUPITERED)";
+				}
+				notice (" \002$i\002");
+			}
+		}
+	}
+}

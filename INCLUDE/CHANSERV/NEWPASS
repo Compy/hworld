@@ -1,0 +1,15 @@
+if ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isauth_nick($nick))) {
+        notice("You must be authenticated to use this command");
+}
+elsif (length($tok[1]) < 6) {
+	error($tok[1],"pls use a more secure password.");
+}
+
+else {
+	$tmp = $ISAUTH{$numnick};
+        $NDATA{lc($tmp)}->{PASSWD} = crypt($tok[1],"GW");
+	notice("Nickname password for \002$tmp\002 changed to \002$tok[1]\002");
+}

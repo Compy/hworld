@@ -1,0 +1,62 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	if ($tok[1] eq "") {
+		notice("Listing channels/nicknames that would not expire:");
+		notice("\002Nicknames:\002");
+		foreach $i (keys %NDATA) {
+			if (($i ne "") && (isregistered_nick($i)) && ($NDATA{$i}->{NOEXPIRE} == 1)) {
+				notice(" $i");
+			}
+		}
+		notice("\002Channels:\002");
+		foreach $i (keys %CDATA) {
+			if (($i ne "") && (isregisteredcase_chan($i)) && ($CDATA{$i}->{NOEXPIRE} == 1)) {
+				notice(" $i");
+			}
+		}
+
+	}
+	else {
+		if (isvalid($tok[1])) {
+			if (!(isregistered_chan($tok[1]))) {
+				error($tok[1],"is not a registered channel.");
+			}
+			else {
+				if ($CDATA{lc($tok[1])}->{NOEXPIRE} == 1) {
+					$CDATA{lc($tok[1])}->{NOEXPIRE} = 0;
+					notice("$tok[1] is now \002open\002 to expiry.");
+				}
+				elsif ($CDATA{lc($tok[1])}->{NOEXPIRE} == 0) {
+					$CDATA{lc($tok[1])}->{NOEXPIRE} = 1;
+					notice("$tok[1] will \002not\002 expire.");
+				}
+			}
+		}
+		else {
+			if (!(isregistered_nick($tok[1]))) {
+				error($tok[1],"is not a registered nickname.");
+			}
+			else {
+				if ($NDATA{lc($tok[1])}->{NOEXPIRE} == 1) {
+					$NDATA{lc($tok[1])}->{NOEXPIRE} = 0;
+					notice("$tok[1] is now \002open\002 to expiry.");
+				}
+				elsif ($NDATA{lc($tok[1])}->{NOEXPIRE} == 0) {
+					$NDATA{lc($tok[1])}->{NOEXPIRE} = 1;
+					notice("$tok[1] will \002not\002 expire.");
+				}
+			}
+		}
+	}
+	&addlog;
+}
+
+
+
+
+

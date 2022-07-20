@@ -1,0 +1,33 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+else {
+	notice(" Matching channels: \002$tok[1]\002");
+	notice("===========================================================");
+	$count=0;
+	foreach $i (keys %CDATA)
+	{
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if (($i ne "") && (isregisteredcase_chan($i)))
+		{
+			$tmpcheck = $i;
+			$tmpcheck =~ s/\#//;
+			if (&wccheck($tok[1],$tmpcheck))
+			{
+				$count++;
+				$tmpowner = $CDATA{$i}->{OWNER};
+				notice(" \002$count\002\. $i \[$tmpowner\]");
+			}
+		}
+	}
+	notice(" Total matches: \002$count\002.");
+	notice("===========================================================");
+}
+

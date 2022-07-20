@@ -1,0 +1,62 @@
+if ($tok[1] eq "") {
+	notice("FULLSTATS <#CHANNEL>");
+}
+elsif ($CINFO{lc($tok[1])}->{CREATE} eq "") {
+	notice("No such channel: $tok[1]");
+}
+else {
+	notice("\002FULL STATISTICS\002: $tok[1]");
+	$t = localtime(time);
+	notice("\002$t\002");
+	notice("--------------------------------------------");
+	getchmodes($tok[1]);
+	notice("CHANNELMODES: $getchmodes_modes");
+	$tmp = $CINFO{lc($tok[1])}->{CREATE};
+	$tmp = localtime($tmp);
+	notice("CREATED: $tmp");
+	notice("USERS:");
+	local($count) = 0;
+	foreach $i (keys %NINFO) {
+		if (ison_num($tok[1],$i)) {
+			$count++;
+			getinfo_num($i);
+			if (isop_num($tok[1],$i)) {
+				$TMPSTATUS = "\@";
+			}
+			elsif (isvo_num($tok[1],$i)) {
+				$TMPSTATUS = "\+";
+			}
+			else {
+				$TMPSTATUS = "";
+			}
+			notice("$count\. $TMPSTATUS$getinfo_nickname \[$getinfo_halfhost\] $getinfo_server");
+		}
+	}
+	$CCOUNT = "0";
+	notice("Total: $count");
+	notice("Channel BANS:");
+	foreach $i (keys %{$CBAN{lc($tok[1])}}) {
+		if ($i ne "") {
+			$CCOUNT++;
+			notice("$CCOUNT\. $i");
+		}
+	}			
+	notice("Network users: $NWINFO{CURRENTUSERS} ($NWINFO{MAXUSERS})");
+	gettime(time - $NWINFO{UPTIME});
+	notice("Services Uptime: $gettime_days\days $gettime_hours\hours $gettime_mins\mins $gettime_secs\secs");
+	@PROCESS = `ps ux`;
+	foreach $i (@PROCESS) {
+		$i =~ s/\n//;
+		$i =~ s/\r//;
+		if ($i =~ /GWorld/g) {
+			(undef,undef,$CPU,$MEM,undef) = split(/\s* /,$i,5);
+			notice("CPU: $CPU\% MEM: $MEM\%.");
+			return;
+		}
+	}			
+	undef @PROCESS;
+	undef $CPU;
+	undef $MEM;
+	undef $i;
+}
+

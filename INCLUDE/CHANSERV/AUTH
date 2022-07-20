@@ -1,0 +1,25 @@
+if ($tok[2] eq "") {
+	syntaxerr;
+}
+elsif (isauth_nick($nick)) {
+	notice("You are already authenticated.");
+}
+elsif (!(isregistered_nick($tok[1]))) {
+	notice("\002$tok[1]\002 - is not a registered nickname.");
+}
+elsif (crypt($tok[2],"GW") ne $NDATA{lc($tok[1])}->{PASSWD}) {
+	notice("Incorrect password.");
+}
+else {
+	$ISAUTH{$numnick} = $tok[1];
+	$NDATA{lc($tok[1])}->{LASTAUTH} = time;
+	getinfo_nick($nick);
+	$NDATA{lc($tok[1])}->{LASTHOST} = $getinfo_fullhost;
+	notice("Authentication Successful - \002$ISAUTH{$numnick}\002");
+	if (isoper_nick($nick)) {
+		if ($NDATA{lc($tok[1])}->{CSLVL} > 0) {
+			$CSERVICELVL{$numnick} = $NDATA{lc($tok[1])}->{CSLVL};
+			notice("Cservice Level \002$CSERVICELVL{$numnick}\002 Granted.");
+		}
+	}
+}

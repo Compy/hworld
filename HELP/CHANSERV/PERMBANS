@@ -1,0 +1,4 @@
+Lists all Permanent bans stored for the channel.
+
+EXAMPLE: /msg %CS% PERMBANS #Gworld
+SEEALSO: ADDPERMBAN REMPERMBAN

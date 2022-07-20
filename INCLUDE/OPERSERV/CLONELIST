@@ -1,0 +1,16 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	notice("\026Hosts exempted from clone search:\026");
+	$clcount=0;
+      foreach $cl (keys %CLONE) {
+      	$cl =~ s/\n//;
+		$cl =~ s/\r//;
+		if (($cl ne "") && (isclone($cl))) {
+			$clcount++;
+			notice("\002$clcount:\002 $cl");
+		}
+	}
+	notice("End of list");
+}

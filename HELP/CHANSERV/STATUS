@@ -1,0 +1,5 @@
+Returns the channel options and records of a registered channel.
+Usually used to find out who the channel owner is and to see the channel info.
+
+EXAMPLE: /msg %CS% STATUS #Gworld
+SEEALSO: LOCKMODE LOCKTOPIC SETINFO

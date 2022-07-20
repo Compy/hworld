@@ -1,0 +1,5 @@
+Lists all registered channels matching the specified wildcard.
+
+EXAMPLE: /msg %CS% LISTCHANS *s*e*x*
+         /msg %CS% LISTCHANS *oper*
+SEEALSO: LISTNICKS

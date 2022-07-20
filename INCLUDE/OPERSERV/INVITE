@@ -1,0 +1,26 @@
+if (!(getoperlevel($numnick))) {
+	error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}   
+elsif (!(isvalid($tok[1]))) {
+	error($tok[1],"is not a valid channel name.");
+}
+elsif(ison_user($tok[1],$nick)) {
+        error($tok[1],"you are already on it.");
+}
+elsif ((lc($tok[1]) eq lc($GW_DEBUG_CHAN3)) || (lc($tok[1]) eq lc($GW_DEBUG_CHAN2))) {
+	notice("Unable to use $OPERSERV to invite into a debug channel.");
+	wallops($OPERSERV,"$nick tried to enter a debug channel");
+}
+else {
+	out("$OSNUM J $tok[1]");
+	out("$GWNUM M $tok[1] +o $OSNUM");
+	out(":$OPERSERV I $nick $tok[1]");
+	out("$OSNUM L $tok[1]");
+	notice("Invited you to join \002$tok[1]\002.");
+	&addlog;
+
+}
+

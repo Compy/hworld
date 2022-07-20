@@ -1,0 +1,32 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isonline_nick($tok[1]))) {
+	notice("\002$tok[1]\002 - is not online.");
+}
+elsif (!(isauth_nick($tok[1]))) {
+	getinfo_nick($tok[1]);
+	notice("$tok[1]\[$getinfo_halfhost\] is \002not\002 authenticated.");
+}
+else {
+	getinfo_nick($tok[1]);
+	$tmpnoh = $NNUMERIC{lc($tok[1])};
+	$tmpaa = $ISAUTH{$tmpnoh};
+	$TMPSTATUS = "";
+	if (isoper_nick($tok[1])) {
+		$TMPSTATUS = " (IRCOP)";
+	}
+	if ($CSERVICELVL{$NNUMERIC{lc($tok[1])}} >= 700) {
+		$TMPSTATUS = " (ADMIN)";
+	}
+        if ($CSERVICELVL{$NNUMERIC{lc($tok[1])}} >= $CSERVICE) {
+                $TMPSTATUS = " (CSERVICE)";
+        }  
+        if ($CSERVICELVL{$NNUMERIC{lc($tok[1])}} >= 900) {
+                $TMPSTATUS = " (NETCOM)";
+        }  
+        if ($CSERVICELVL{$NNUMERIC{lc($tok[1])}} >= 1000) {
+                $TMPSTATUS = " (ROOT)";
+        }  
+	notice("$tok[1]\[$getinfo_halfhost\] is authenticated as \002$tmpaa\002$TMPSTATUS.")
+}

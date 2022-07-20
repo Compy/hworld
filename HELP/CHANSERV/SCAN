@@ -1,0 +1,5 @@
+Scans the database to search for nicknames whose last auth host matches the <USER@HOST>.
+Used to find multiple nicknames registrants.
+
+EXAMPLE: /msg %CS% SCAN *Fly@qtns412.MyIsp.Com
+SEEALSO: LISTNICKS LISTCHANS

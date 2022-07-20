@@ -1,0 +1,6 @@
+If the [#CHANNEL] parameter is specified, %CS% will return you the amount of access you have on
+that particular channel. If it is not specified, %CS% will return you all the channel accesses
+you have under your registered nickname.
+
+EXAMPLE: /msg %CS% ACCESS #Gworld
+SEEALSO: ADDUSER REMUSER SETUSER LISTUSERS

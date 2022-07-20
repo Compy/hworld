@@ -1,0 +1,20 @@
+if (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        error($tok[1],"is not a registered channel.");
+}
+elsif(&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");
+}
+elsif(ison_user($tok[1],$nick)) {
+	error($tok[1],"you are already on it.");
+}
+
+else { 
+	out(":$CHANSERV I $nick $tok[1]");
+	notice("Inviting you to join \002$tok[1]\002");
+}

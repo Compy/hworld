@@ -1,0 +1,25 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	notice("\026$VER - Cservice Special Commands\026");
+	notice("----------------------------------------------------------------------");
+	notice("* Cservice Admin level: $CSERVICE");
+	notice("* Your Cservice level: $CSERVICELVL{$numnick}");
+	notice(" ");
+	notice("* \026ACCESS\026 - /MSG $CHANSERV ACCESS [NICK]");
+	notice("  If [NICK] is specified, it will show you the access list");
+	notice("  of that registered nickname. Else, it will show your access list.");
+	notice(" ");
+	notice("* You are able to use user commands without having access in those");
+	notice("  channels. You will be able to override the access and use almost");
+	notice("  any user commands, except some.");
+	notice("  EG: DROP, OP, DEOP");
+	notice(" ");
+	notice("* All commands you issue are logged and some are broadcasted to other");
+	notice("  cservice admins.");
+	notice("----------------------------------------------------------------------");
+}

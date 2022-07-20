@@ -1,0 +1,6 @@
+Adds a server into records. Services will recognise it as a authorised server for the network,
+and will be listed in the SPLITEDSERVERS command if the server splits away. The <NUMERIC> of 
+the server must be the same as the one in the M-line of that server.
+
+EXAMPLE: /msg %OS% ADDSERVER IRC.Severious.Com.Sg 6 GeNeXiS
+SEEALSO: DELSERVER LISTSERVERS SPLITEDSERVERS

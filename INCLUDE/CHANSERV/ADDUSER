@@ -1,0 +1,32 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[3] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (!(isregistered_nick($tok[2]))) {
+	error($tok[2],"is not a registered nickname.");
+}
+
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+elsif (($tok[3] > 499) || ($tok[3] < 100) || ($tok[3] !~ /^\d+$/)) {
+	notice("Invalid access level to add.");
+}
+elsif ($tok[3] >= &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	notice("You cannot add a level greater or equal to yourself.");
+}
+elsif (&checkchlevel($tok[1],$tok[2])) {
+	notice("$tok[2] is already in the channel list.");
+}
+else {
+	$tmp = $ISAUTH{$numnick};
+	$tmp = "$tok[2]\@$tok[3]\@$tmp ";
+	$tok[1] = lc($tok[1]);
+	$CDATA{lc($tok[1])}->{USERS} .= $tmp;
+	notice("Added $tok[2] with level \002$tok[3]\002 on $tok[1].");
+}

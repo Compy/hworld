@@ -1,0 +1,8 @@
+Jupiters a server. If you specify a integer numeric, the server database would be searched to
+locate a server with the same numeric before juping. If a servername is specified, you must also
+include the n:<intnum> parameter to specify the server numeric for the unknown server.
+
+
+EXAMPLE: /msg %OS% JUPE IRC.Broken.Net n:56 Juping an unknown server
+         /msg %OS% JUPE 5 This server is broken
+

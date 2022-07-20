@@ -1,0 +1,2 @@
+$t = time;
+out("$GWNUM SE $t :$SERVERNAME");

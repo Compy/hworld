@@ -1,0 +1,24 @@
+if (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[3] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        error($tok[1],"is not a registered channel.");
+}
+elsif(&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");
+}
+elsif (!(ison_user($tok[1],$tok[2]))) {
+	error($tok[2],"is not on $tok[1]");
+}
+else {                                                                       
+	(undef,undef,undef,$kickreasons) = split(/ /,$msg,4);
+	getinfo_nick($tok[2]);
+	out("$CSNUM M $tok[1] +b \*\!\*\@$getinfo_mask");
+	&mode($CSNUM,$tok[1],"+b \*\!\*\@$getinfo_mask");
+        $tmp = $NNUMERIC{lc($tok[2])};
+	out("$CSNUM K $tok[1] $tmp :\002$nick\002: $kickreasons");
+#        &user_kick($CSNUM,$tok[1],$tmp,$kickreasons); 
+}

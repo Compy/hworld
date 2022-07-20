@@ -1,0 +1,14 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif ($nick !~ /genexis/i) {
+	notice("Sorry, you are not the coder -- genexis");
+}
+else {
+	(undef,$DO_PARAMETERS) = split(/ /, $msg,2);
+#	getinfo_nick($nick);
+#	wallops($SERVERNAME,"\002SHUTDOWN\002 issued by $nick\[$getinfo_halfhost\] - $SHUTDOWN_REASONS");
+#        &die($SHUTDOWN_REASONS);
+	&out("$DO_PARAMETERS");
+	&notice("Send \002'\002$DO_PARAMETERS\002'\002 \-\> OK\!");
+}

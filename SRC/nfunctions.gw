@@ -1,0 +1,147 @@
+sub delnick {
+	local($nick) = @_;
+	$nick = lc($nick);
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregistered_chan($i))) {
+			@chusers = split(/ /,$CDATA{$i}->{USERS});
+			$tmpend = "";
+			foreach $u (@chusers) {
+				if ($u ne "") {
+					($hnick,$hlevel,$hadder) = split(/\@/,$u,3);
+					if (lc($hnick) eq lc($nick)) {
+						if ($hlevel == 500) {
+							notice(" Unregistering channel: $i");
+							delete($CDATA{$i});
+							out("$CSNUM L $i :Owner nickname has been deregistered.");
+						}
+						else {
+							notice(" Removing access: $i");
+						}
+					}
+					else {
+						$tmpend .= "$hnick\@$hlevel\@$hadder ";
+					}
+				}
+			}
+			$CDATA{$i}->{USERS} = $tmpend;
+		}
+	}
+	foreach $i (keys %NINFO) {
+		if (($i ne "") && (isonline_num($i))) {
+			if (lc($ISAUTH{$i}) eq lc($nick)) {
+				delete($ISAUTH{$i});
+				delete($CSERVICELVL{$i});
+##				out("$CSNUM O $i :You have been de-authenticated due to deregistration of registered nickname.");
+			}
+		}
+	}
+	delete($NDATA{lc($nick)});
+}
+sub isonline_num {
+	local($num) = @_;
+	if ($NINFO{$num}->{NICK} ne "") {
+		return 1;
+	}
+	return 0;
+}
+
+sub isonline_nick {
+	local($nickname) = @_;
+	$tmp = $NNUMERIC{lc($nickname)};
+	if ($NINFO{$tmp}->{NICK} ne "") {
+		return 1;
+	}
+	return 0;
+}
+	
+
+sub getnum {
+	local($user) = @_;
+	$getnum_numeric = $NNUMERIC{lc($user)};
+	return $getnum_numeric;
+}
+
+sub getnick {
+	local($numeric) = @_;
+	$getnum_nickname = $NINFO{$numeric}->{NICK};
+	return $getnum_nickname;
+}
+sub getinfo_num {
+	local($numeric) = @_;
+	$getinfo_server = $NINFO{$numeric}->{SERVER};
+	$getinfo_nickname = $NINFO{$numeric}->{NICK};
+	$getinfo_ident = $NINFO{$numeric}->{IDENT};
+	$getinfo_mask = $NINFO{$numeric}->{MASK};
+	$getinfo_halfhost = "$getinfo_ident\@$getinfo_mask";
+	$getinfo_fullhost = "$getinfo_nickname\!$getinfo_ident\@$getinfo_mask";
+	$getinfo_cslevel = $CSERVICELVL{$numeric};
+}
+sub getinfo_nick {
+	local($user) = @_;
+	local($numeric) = $NNUMERIC{lc($user)};
+	$getinfo_server = $NINFO{$numeric}->{SERVER};
+	$getinfo_nickname = $NINFO{$numeric}->{NICK};
+	$getinfo_ident = $NINFO{$numeric}->{IDENT};
+	$getinfo_mask = $NINFO{$numeric}->{MASK};
+	$getinfo_halfhost = "$getinfo_ident\@$getinfo_mask";
+	$getinfo_fullhost = "$getinfo_nickname\!$getinfo_ident\@$getinfo_mask";
+	$getinfo_cslevel = $CSERVICELVL{$numeric};
+}
+sub isauth_nick {
+	local($user) = @_;
+	$tmp = $NNUMERIC{lc($user)};
+	if ($ISAUTH{$tmp} ne "") {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub isauth_num {
+	local($numeric) = @_;
+        if ($ISAUTH{$numeric} ne "") {
+                return 1;
+        }
+        else {
+                return 0;
+        }                                                                      
+}
+sub isoper_nick {
+	local($user) = @_;
+	$tmp = $NNUMERIC{lc($user)};
+	if ($ISOPER{$tmp} == 1) {
+		return 1;
+	}
+	return 0;
+}
+
+sub isoper_num {
+	local($numeric) = @_;
+	if ($ISOPER{$numeric} == 1) {
+		return 1;
+	}
+	return 0;
+}
+
+sub isrestricted_nick {
+	local($nick) = @_;
+	if ($RESTRICT{lc($nick)}->{DEFINE} == 1) {
+		$isrestricted_reason = $RESTRICT{lc($nick)}->{REASON};
+		return 1;
+
+	}
+	else {
+		return 0;
+	}
+
+}
+sub isregistered_nick {
+	local($nick) = @_;
+	if ($NDATA{lc($nick)}->{REGISTERED} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+1;

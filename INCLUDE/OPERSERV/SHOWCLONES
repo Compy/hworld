@@ -1,0 +1,78 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	if ($tok[1] eq "") {
+		$clncount = "5";
+	}
+	elsif ($tok[1] !~ /^[0-9]+$/) {
+		$clncount = "5";
+	}
+	else {
+		$clncount = $tok[1];
+	}
+	$found = "no";
+      $clonesnum = "0";
+      undef $clonesshow;
+      undef $clonesdata;
+      $clonesnick = $nick;
+	notice("Searching for users with \002$clncount\002 or more connections:");
+      foreach $h (keys %NINFO) {
+      	$h =~ s/\n//;
+		$h =~ s/\r//;
+		if (($h ne "") && ($NINFO{$h}->{NICK} ne "")) {
+			$w_hostmask = $NINFO{$h}->{MASK};
+                  if ($w_hostmask !~ /$nickhost/i) {
+				if (!(isclone($w_hostmask))) {
+					if ($clones{$w_hostmask} eq "") {
+       		            	$clones{$w_hostmask} = "$h";
+               		            $clonesdata = "$clonesdata $w_hostmask";
+						$clonecount{lc("$w_hostmask")}++;
+					}
+					else {
+                              	$clones{$w_hostmask} .= " $h";
+                                    if ($clonesshow !~ $w_hostmask) {
+                                    	$clonesshow .= " $w_hostmask";
+						}
+						$clonecount{lc("$w_hostmask")}++;
+					}
+				}
+			}
+		}
+	}
+	@c = split(/ /, $clonesshow);
+	foreach $i (@c) {
+      	$i =~ s/\n//;
+		$iii = $i;	
+		$aa = $i;
+            $i = $clones{$i};
+            if (($i ne "") && ($clonecount{lc("$aa")} >= $clncount)) {
+            	@q = split(/ /, $i);
+                  $tempp = "\*\!\*\@$iii";
+                  $found = "yes";
+                  $clonesnum++;
+                  &notice(" \002\026$clonesnum\026 - $tempp\002");
+                  @scs = split(/ /,$i);
+                  foreach $g (@scs) {
+                  	$g =~ s/\n//;
+				$gg = $NINFO{$g}->{NICK};
+                        $v = $NINFO{$g}->{IDENT};
+                        $vv = $NINFO{$g}->{MASK};
+                        notice("  `|- $gg\[$v\@$vv\]");
+			}
+		}
+		$clones{$i} = "";
+	}
+	undef(%clones);				
+	undef(%clonecount);				
+	if ($found eq "no") {
+      	&notice("** None found.");
+	}
+      if ($found eq "yes") {
+      	&notice("Total of [\002$clonesnum\002] Found.");
+	}
+	$clonesshow = "";
+	$found = "no";
+	$clonesnum = "0";
+	$clonesdata = "";
+}

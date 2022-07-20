@@ -1,0 +1,10 @@
+notice("\026$VER [IRC Services Package]\026");
+chop($tmp = `uname -sm`);
+chop($tmp2 = `hostname`);
+$tmp = "$tmp (\002$tmp2\002)";
+notice("Running on: $tmp");
+notice("Coded and mantained by:");
+notice("Chye Nyit Whon");
+notice("Copyrights 2000 - 2001 (\002c\002)");
+notice("All rights reserved");
+

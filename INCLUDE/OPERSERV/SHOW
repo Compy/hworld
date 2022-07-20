@@ -1,0 +1,48 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+else {
+	notice("\026Searching for server(s): $tok[1]\026");
+	$FOUND=0;
+	local($serv);
+	foreach $serv (keys %SINFO) {
+		$serv =~ s/\n//;
+		$serv =~ s/\r//;
+		if (($serv ne "") && (isserver_num($serv))) {
+			$servname = $SINFO{$serv}->{SERVERNAME};
+			if (wccheck($tok[1],$servname))
+			{
+				$FOUND=1;
+				notice("Servername\002:\002 $servname");
+				$tmpservnum = $serv;
+				$tmpservintnum = &num2int($tmpservnum);
+				notice("   Numeric\002:\002 $tmpservintnum \[$serv\]");
+				$tmpservhubnum = $SINFO{$serv}->{HUB};
+				$tmpservhub = $SINFO{$tmpservhubnum}->{SERVERNAME};
+				notice("       Hub\002:\002 $tmpservhub \[$tmpservhubnum\]");
+				notice("User count\002:\002 $SINFO{$serv}->{COUNT}");
+				if ($SDATA{lc($servname)}->{DEFINE} == 1) {
+					notice("     Admin\002:\002 $SDATA{lc($servname)}->{ADMIN}");
+				}
+				else {
+					notice("This server is not found in database.");
+				}
+				notice(" ");
+			}
+		}				
+	}
+	if ($FOUND == 0) {
+		notice("Unable to locate any matching servers.");
+	}
+	notice("End of search");
+	undef $FOUND;
+	undef $tmpservnum;
+	undef $tmpservintnum;
+	undef $tmpservhub;
+	undef $tmpservhubnum;
+	undef $serv;
+	undef $servnum;
+}

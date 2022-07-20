@@ -1,0 +1,40 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}                                                                              
+else {
+	notice("\026CService Level Holders\026:");
+	notice("Nickname        Level        Online");
+	notice("==========================================================");
+
+	foreach $i (keys %NDATA) {
+		if ($NDATA{$i}->{CSLVL} >= 600) {
+			undef $tmponline;
+			$tmpspace = "";
+			$tmplevel = $NDATA{$i}->{CSLVL};
+			foreach $x (keys %ISOPER) {
+				if (lc($ISAUTH{$x}) eq lc($i)) {
+					$tmponline = 1;
+					$tmpnick = $x;
+				}
+			}
+            	$tmpspace = length($i);
+	            $tmpspace = "16" - $tmpspace;
+      	      $tmpspace = " " x $tmpspace;
+			$tmp = length($i);
+			$tmplennick = "16" - $tmp;
+			$tmplenlevel = length($tmplevel);
+			$tmpspace2 = "29" - $tmplenlevel - $tmplennick - $tmp;
+			$tmpspace2 = " " x $tmpspace2;
+			if ($tmponline) {
+				getinfo_num($tmpnick);
+				notice("$i$tmpspace$tmplevel$tmpspace2$getinfo_fullhost");
+			}
+			else {
+            	            notice("$i$tmpspace$tmplevel$tmpspace2\-");
+			}	
+		}
+	}
+}

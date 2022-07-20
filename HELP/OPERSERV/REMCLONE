@@ -1,0 +1,8 @@
+Removes a clone from being exempted from SHOWCLONES and detections. You can either
+specify the MASK or the NUMBER, which is shown in the CLONELIST command.
+
+EXAMPLE: /msg %OS% REMCLONE i-am-a-bot.org
+         /msg %OS% REMCLONE freeshells.net
+         /msg %OS% REMCLONE 8
+
+SEEALSO: ADDCLONE CLONELIST

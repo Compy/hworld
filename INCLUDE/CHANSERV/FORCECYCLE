@@ -1,0 +1,19 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        error($tok[1],"is not a registered channel.");
+}
+else {
+        out("$CSNUM L $tok[1]");
+        out("$CSNUM J $tok[1]");
+        out("$GWNUM M $tok[1] +o $CSNUM");
+        notice("Cycle completed !");
+	wallops($CHANSERV,"$nick \002$COM\002 $tok[1].");
+}

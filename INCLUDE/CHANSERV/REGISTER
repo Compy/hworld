@@ -1,0 +1,33 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (isauth_nick($nick)) {
+	notice("You cannot register a nickname when u are authenticated.");
+}
+elsif (length($tok[1]) < 6) {
+	notice("Please choose a password which is at least 6 characters long.");
+}
+elsif (isregistered_nick($nick)) {
+	notice("This nickname is already registered, please choose another.");
+}
+elsif (isrestricted_nick($nick)) {
+	notice("This is a restricted nickname - \002$isrestricted_reason\002");
+}
+else {
+	$tmppass = crypt($tok[1],"GW");
+	$NDATA{lc($nick)}->{REGISTERED} = 1;
+        $NDATA{lc($nick)}->{PASSWD} = $tmppass;
+	getinfo_nick($nick);
+        $NDATA{lc($nick)}->{LASTHOST} = $getinfo_fullhost;
+        $NDATA{lc($nick)}->{LASTAUTH} = time;
+	$NDATA{lc($nick)}->{REGDATE} = time;
+        $NDATA{lc($nick)}->{CSLVL} = 0;
+        $NDATA{lc($nick)}->{NOEXPIRE} = 0;
+	$ISAUTH{$numnick} = $nick;
+	notice("Registration \002Successful\002 !");
+	notice("Your nickname password is $tok[1]");
+	notice("Please DO NOT forget your password and do not disclose your password to anybody.");
+	notice("\002REMEMBER IRCOPS WILL NOT ASK FOR YOUR PASSWORD\002");
+	notice("Nicknames not used for 21 days will be automatically deregistered");
+	notice("You are now authenticated as $nick, type /MSG $CHANSERV HELP AUTH to learn more about it.");
+}

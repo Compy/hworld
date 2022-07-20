@@ -1,0 +1,13 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+else {
+	$s_starttime = time;
+	notice("Writing channel/nickname records ...");
+	sync;
+	$s_endtime = time - $s_starttime;
+	notice("Database synchronized in \002$s_endtime\002 seconds.");
+	undef $s_starttime;
+	undef $s_endtime;
+
+}

@@ -1,0 +1,7 @@
+Sets the Channel Info seen in the STATUS command and the OnJoinGreet msg. 
+If nothing is specified, ChanInfo will be resetted to nothing, which means no OnJoinGreet and
+nothing will be seen as the channel info in the STATUS command.
+
+EXAMPLE: /msg %CS% SETINFO #Gworld Gworld IRC Services 
+         /msg %CS% SETINFO #Gworld 
+SEEALSO: STATUS

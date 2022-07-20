@@ -1,0 +1,5 @@
+Adds a registered channel under a nickname handle. This command is used to override the 
+CHANMAXLIMIT function.
+
+EXAMPLE: /msg %CS% ADDCHAN #Gworld GeNeXiS
+SEEALSO: DELCHAN LISTCHANS

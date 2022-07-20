@@ -1,0 +1,5 @@
+Makes services invite you into the specified #channel. Used when you need to setup a private 
+channel where only access holders are allowed to enter.
+
+EXAMPLE: /msg %CS% INVITE #Gworld
+SEEALSO: LOCKMODE

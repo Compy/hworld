@@ -1,0 +1,1033 @@
+####################################################
+## PARSE.GW :: G-World Parameters parsing utility ##
+####################################################
+
+sub start_listen {
+	while (<$SOCK>) {
+#		(/^(.+)/i && &debug($1)) ||
+		## Define other server registration
+		## B SERVER server1.gx.org 1 900000000 900000000 J10 CC]]] 0 :Desc
+		(/^(\S+) SERVER (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) 0 :(.+)/i && &regserv($1,$2,$3,$4,$5,$6,$7,$8)) ||
+		(/^(\S+) S (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) 0 :(.+)/i && &regserv($1,$2,$3,$4,$5,$6,$7,$8)) ||
+		## End of server
+		## Define hub server registration
+		## SERVER server1.gx.org 1 900000000 900000000 J10 CC]]] :Desc
+		(/^SERVER (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) :(.+)/i && &reghub($1,$2,$3,$4,$5,$6,$7)) ||
+		(/^S (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) :(.+)/i && &reghub($1,$2,$3,$4,$5,$6,$7)) ||
+		## End of HUB REG server
+		## Define END_OF_BURST Signal
+		(/^(\S+) EB/i && &eob($1)) ||
+		(/^(\S+) END_OF_BURST/i && &eob($1)) ||
+		## Define END_OF_BURST_ACK Signal
+		(/^(\S+) EA/i && &eob_ack($1)) ||
+		(/^(\S+) EOB_ACK/i && &eob_ack($1)) ||
+		## END of EOB
+		## Define GLINE parameters
+		(/^(\S+) GL (.+)/i && &getgline($1,$2)) ||
+		## End of GLINE paramaters
+		## Define NICK Parameters
+		## B NICK G3N3X15 1 960348920 Vortex ad202.166.104.111.magix.com.sg +owg DKpmhv BAB :Blue Devil    
+		## BAB NICK shit 900001037
+		(/^(\S+) NICK (.+)/i && &reg_user($1,$2)) ||
+		(/^(\S+) N (.+)/i && &reg_user($1,$2)) ||
+		## End of NICK 
+		## Define BURST Parameter
+		(/^(\S+) BURST (.+)/i && &burst($1,$2)) ||
+		(/^(\S+) B (.+)/i && &burst($1,$2)) ||
+		## End of BURST
+		## Define users JOIN and CREATE
+#incompatiable protocol		(/^:(\S+) JOIN (\S+)/i && &user_join($1,$2)) ||
+		(/^(\S+) J (\S+)/i && &user_join($1,$2)) ||
+		(/^(\S+) CREATE (\S+) (\S+)/i && &user_create($1,$2,$3)) ||
+		(/^(\S+) C (\S+) (\S+)/i && &user_create($1,$2,$3)) ||
+		## End of JOIN and CREATE
+		## Define user PART and KICK
+		(/^:(\S+) PART (\S+)/i && &user_part2($1,$2)) ||
+		(/^(\S+) L (.+)/i && &user_part($1,$2)) ||
+#incompatiable protocol		(/^:(\S+) KICK (\S+) (\S+) :(.+)/i && &user_kick($1,$2,$3,$4)) ||
+		(/^(\S+) K (\S+) (\S+) :(.+)/i && &user_kick($1,$2,$3,$4)) ||
+		## End of user PART and KICK
+		## Define user QUIT and KILL
+		## :GeNeXiS QUIT :Local kill by GeNeXiS (byebyebye)
+#incompatiable protocol		(/^:(\S+) QUIT :(.+)/i && &user_quit($1,$2)) ||
+		(/^(\S+) Q :(.+)/i && &user_quit($1,$2)) ||
+#incompatiable protocol		(/^:(\S+) KILL (\S+) :(.+)/i && &kill($1,$2,$3)) ||
+		(/^(\S+) D (\S+) :(.+)/i && &kill($1,$2,$3)) ||
+		## End of user QUIT and KILL
+		## Define USER and CHANNEL MODES
+#incompatiable protocol		(/^:(\S+) MODE (\S+) (.+)/i && &mode($1,$2,$3)) ||
+		(/^(\S+) M (\S+) (.+)/i && &mode($1,$2,$3)) ||
+		## End of USER and CHANNEL MODES
+		## Define PRIVMSGs to services
+#incompatiable protocol		(/^:(\S+) PRIVMSG (\S+) :\s*(\S+)\s*(.*)/i && &msg($1,$2,$3,$4)) ||
+		(/^(\S+) P (\S+) :\s*(\S+)\s*(.+)/i && &msg($1,$2,$3,$4)) ||
+		## End of PRIVMSGs to services
+		## Define MOTD
+#incompatiable protocol		(/^(\S+) MOTD (\S+)/i && &motd($1,$2)) ||
+		(/^(\S+) MO (\S+)/i && &motd($1,$2)) ||
+		## End of MOTD
+		## Define Server local SQUIT and remote squits
+		(/^:(\S+) SQUIT (\S+) (\S+) :(.+)/i && &serv_quit($1,$2,$3,$4)) ||
+#incompatiable protocol		(/^(\S+) SQ (\S+) (\S+) :(.+)/i && &serv_quit2($1,$2,$3,$4)) ||
+		## End of server squit
+		## Define TOPIC change
+		(/^(\S+) T (\S+) :(.+)/i && &chtopic($1,$2,$3)) ||
+#incompatiable protocol		(/^:(\S+) TOPIC (\S+) :(.+)/i && &chtopic($1,$2,$3)) ||
+		## End of TOPIC change
+		## Define /STATS request
+		(/^(\S+) R (\S+) :(\S+)/i && &stats($1,$2,$3)) ||
+		## End of /STATS request
+		## Define INFO, VERSION, ADMIN requests
+		(/^(\S+) F :(\S+)/i && &info($1,$2)) ||		
+		(/^(\S+) V :(\S+)/i && &ver($1,$2)) ||
+		(/^(\S+) AD :(\S+)/i && &admin($1,$2)) ||
+		## End of the crap above
+#incompatiable protocol		(/^:(\S+) PING :(\S+)/i && &pong_server($1,$2));
+		(/^(\S+) G :(\S+)/i && &pong_server($1,$2)) ||
+		(/^(.+)/i && &timerz($1)) ||
+		(/^(.+)/i && &debug2($1));
+	}
+}
+sub reghub {
+	## SERVER server1.gx.org 1 900000000 900000000 J10 CC]]] :Desc
+	local($tmphub,undef,undef,undef,undef,$tmpnum,undef) = @_;
+	if (length($tmpnum) == 2) {
+		chop($tmpnum);
+	}
+	elsif (length($tmpnum) == 3) {
+		chop($tmpnum);
+		chop($tmpnum);
+	}
+	elsif (length($tmpnum) == 4) {
+		chop($tmpnum);
+		chop($tmpnum);
+	}
+	elsif (length($tmpnum) == 5) {
+		chop($tmpnum);
+		chop($tmpnum);
+		chop($tmpnum);
+	}
+	$REMOTEHUB = $tmphub;
+	$SINFO{$tmpnum}->{SERVERNAME} = $tmphub;
+	$SINFO{$tmpnum}->{HUB} = $tmpnum;
+	$SINFO{$tmpnum}->{COUNT} = "0";
+	$SNUMERIC{lc($tmphub)} = $tmpnum;
+	debug("\002REGHUB:\002 $SINFO{$tmpnum}->{SERVERNAME} \[$tmpnum\]");
+}
+
+sub regserv {
+	## B SERVER server1.gx.org 1 900000000 900000000 J10 CC]]] 0 :Desc
+	local($numhub,$servtoreg,undef,undef,undef,undef,$servtoregnum,undef) = @_;
+	if (length($servtoregnum) == 5) {
+		chop($servtoregnum);
+                chop($servtoregnum);
+                chop($servtoregnum);
+	}
+	elsif (length($servtoregnum) == 3) {
+		chop($servtoregnum);
+		chop($servtoregnum);
+	}
+	elsif (length($servtoregnum) == 2) {
+		chop($servtoregnum);
+	}
+
+	$SINFO{$servtoregnum}->{SERVERNAME} = $servtoreg;
+	$SINFO{$servtoregnum}->{HUB} = $numhub;
+	$SINFO{$servtoregnum}->{COUNT} = "0";
+	$SNUMERIC{lc($servtoreg)} = $servtoregnum;
+	debug("\002REGSERV\002: $SINFO{$servtoregnum}->{SERVERNAME} \[$servtoregnum\] \-\-\> $numhub");
+	if ($SDATA{lc($servtoreg)}->{DEFINE} != 1) {
+		## This is not a registered server.
+		## Lets take a look at the options.
+		if ($JUPEACTION == 1) { ## IGNORE
+			debug("\002UNAUTHSERVER\002: $servtoreg \[IGNORE\]");
+		}
+
+		elsif ($JUPEACTION == 2) { ## SQUIT the server
+			&out("$GWNUM SQ $servtoreg 0 :Unauthorised server");
+			delete($SINFO{$servtoregnum});
+			delete($SNUMERIC{lc($servtoreg)});
+			debug("\002UNAUTHSERVER\002: $servtoreg \[SQUIT\]");
+		}
+		elsif ($JUPEACTION == 3) { ## Send WALLOPS
+			&wallops($OPERSERV,"\002UnKnown server merging\002: $servtoreg");
+                        debug("\002UNAUTHSERVER\002: $servtoreg \[WALLOPS\]");
+		}
+		elsif ($JUPEACTION == 4) { ## Jupiter the server
+			$t = time;
+                        &out("$GWNUM SQ $servtoreg 0 :Unauthorised server");
+			&out("$GWNUM S $servtoreg 1 $t $t J10 $servtoregnum\]\]\] :\002JUPE\002 - Unauthorised Server");
+			$JUPE{lc($servtoreg)}->{DEFINE} = 1;
+			$SINFO{$servtoregnum}->{SERVERNAME} = $servtoreg;
+			$SINFO{$servtoregnum}->{HUB} = $GWNUM;
+			$SINFO{$servtoregnum}->{COUNT} = 0;
+			$SNUMERIC{lc($servtoreg)} = $servtoregnum;
+                        debug("\002UNAUTHSERVER\002: $servtoreg \[JUPE\]");
+		}
+		else { ## Ignore
+		}
+	}
+}
+
+sub eob {
+	local($tmpnum) = @_;
+	if (lc($SINFO{$tmpnum}->{SERVERNAME}) eq lc($REMOTEHUB)) {
+		&start_services(); ## Edited to use for extend-num ircu
+		&joinchans();
+		out("$GWNUM EB");
+		debug("\002End of BURST\002");
+	}
+}
+sub eob_ack {
+	local($tmpnum) = @_;
+	if (lc($SINFO{$tmpnum}->{SERVERNAME}) eq lc($REMOTEHUB)) {
+		out("$GWNUM EA");
+		undef(%BURST);
+		debug("\002Acknowledge End of BURST from hub\002");
+	}
+}
+
+sub getgline {
+	local($tmpserv,$tmprest) = @_;
+	$tmprest =~ s/\n//;
+	$tmprest =~ s/\r//;
+	## AS GL * +ident@host.domain 3600 :reasons
+	local(@parse_gline) = split(/\s* /,$tmprest);
+	if ($parse_gline[2] ne "") { ## Gline is added.
+		local(undef,$tmp_host,$tmp_time,$tmp_reasons) = split(/\s* /,$tmprest,4);
+		($tmptype,$toaddmask) = split(//,$tmp_host,2);
+		if ($tmptype eq "\+") {
+			$tmp_reasons =~ s/://;
+			$GLINE{lc($toaddmask)}->{DEFINE} = 1;
+			$GLINE{lc($toaddmask)}->{DURATION} = $tmp_time;
+			($tmp_setter,undef) = split(/\./,$SINFO{$tmpserv}->{SERVERNAME},2);
+			$GLINE{lc($toaddmask)}->{SETTER} = "U:$tmp_setter";
+			$GLINE{lc($toaddmask)}->{TIME} = time;
+			$GLINE{lc($toaddmask)}->{REASON} = $tmp_reasons;
+		}
+	}
+	else {
+		## AS GL * -ident@host.domain
+		local(undef,$tmp_host) = split(/\s* /,$tmprest,2);
+		($tmptype,$toaddmask) = split(//,$tmp_host,2);
+		if ($tmptype eq "-") {
+			$tmp_reasons =~ s/://;
+			delete($GLINE{lc($toaddmask)});
+		}
+	}
+}
+
+sub burst {
+	local($tmpnum,$rest) = @_;
+	@burst = split(/ /,$rest);
+	($burstchan,$bursttime,$rest2) = split(/ /,$rest,3);
+	$BURST{lc($burstchan)} = $bursttime;
+	$tmptmp = $CINFO{lc($burstchan)}->{CREATE};
+	if ($bursttime < $tmptmp) {
+		&burst_delchan($burstchan);
+	}
+	$CINFO{lc($burstchan)}->{CREATE} = $bursttime;
+	$burstkey = 0;
+	$burstlimit = 0;
+	undef $BURST_MODES;
+	if ($burst[2] =~ /\+/) {
+		$burst[2] =~ s/\+//;
+		if ($burst[2] =~ /k/) {
+			$burstkey = 1;
+		}
+		if ($burst[2] =~ /l/) {
+			$burstlimit = 1;
+		}
+		if (($burstlimit == 1) && ($burstkey == 1)) {
+			$BURST_MODES = $burst[2];
+			(undef,undef,undef,$BURSTUSERS) = split(/ /,$rest2,4);
+		}
+		elsif (($burstlimit == 0) && ($burstkey == 1)) {
+			$BURST_MODES = $burst[2];
+			(undef,undef,$BURSTUSERS) = split(/ /,$rest2,3);
+		}
+		elsif (($burstlimit == 1) && ($burstkey == 0)) {
+			$BURST_MODES = $burst[2];
+			(undef,undef,$BURSTUSERS) = split(/ /,$rest2,3);
+		}
+		elsif (($burstlimit == 0) && ($burstkey == 0)) {
+			$BURST_MODES = $burst[2];
+			(undef,$BURSTUSERS) = split(/ /,$rest2,2);
+		}
+		@BURSTM = split(//,$BURST_MODES);
+		delete($CMODE{lc($burstchan)});
+		foreach $BMODE (@BURSTM) {
+			$CMODE{lc($burstchan)}->{$BMODE} = 1;
+		}
+	}
+	else {
+		$BURSTUSERS = $rest2;
+	}
+	undef $BURSTBANS;
+	undef $BBANS;
+	undef @BB;
+	if ($BURSTUSERS =~ /\%/) {
+		($BURSTUSERS,$BURSTBANS) = split(/\:%/, $BURSTUSERS);
+	}
+	$BURSTUSERS =~ s/\n//;
+	$BURSTUSERS =~ s/\r//;
+	$BURSTUSERS =~ s/\s+//;
+	@BUSERS = split(/,/,$BURSTUSERS);
+	$BOP = "no";
+	$BVO = "no";
+	@BB = split(/ /,$BURSTBANS);
+	foreach $BBANS (@BB) {
+		$BBANS =~ s/\n//;
+		$BBANS =~ s/\r//;
+		if ($BBANS ne "") {
+			$CBAN{lc($burstchan)}->{lc($BBANS)} = 1;
+##			debug("BAN($burstchan): $BBANS");
+			
+		}
+	}
+
+	foreach $i (@BUSERS) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		$i =~ s/\s+//g;
+		if ($i ne "") {
+			if ($i =~ /:/) {
+				($x,$tmpmode) = split(/:/,$i);
+				if ($tmpmode eq "ov") {
+					$BOP = "yes";
+					$BVO = "yes";
+				}
+				elsif ($tmpmode eq "o") {
+					$BOP = "yes";
+					$BVO = "no";
+				}
+				if ($tmpmode eq "v" ) {
+					$BOP = "no";
+					$BVO = "yes";
+				}
+
+			}
+			else {
+				$x = $i;
+			}
+			$x =~ s/\n//;
+			$x =~ s/\r//;
+			$x =~ s/ //;
+			$ONCHAN{$x}->{lc($burstchan)}->{ISON} = "1";
+			$ONCHAN{$x}->{lc($burstchan)}->{ISOP} = "0";
+			$ONCHAN{$x}->{lc($burstchan)}->{ISVO} = "0";
+
+			debug("JOIN($burstchan): $NINFO{$x}->{NICK}");
+			if ($BOP eq "yes") {
+				debug("OP($burstchan): $NINFO{$x}->{NICK}");
+				op_num($burstchan,$x);
+			}
+			if ($BVO eq "yes") {
+				debug("VOICE($burstchan): $NINFO{$x}->{NICK}");
+				&vo_num($burstchan,$x);
+			}
+		}
+	}
+}
+sub burst_delchan {
+	local($chan) = @_;
+	$chan = lc($chan);
+	delete($CMODE{$chan}); ## No modes
+	delete($CBAN{$chan});   ## No bans
+	local($i);             ## Clears OPS/VOICES
+        foreach $i (keys %NINFO) {
+                if (($i ne "") && (ison_num($chan,$i))) {
+			deop_num($chan,$i);
+			devo_num($chan,$i);
+        	}
+	}	
+}
+
+sub user_create {
+	local($tmpnum,$chan,$createtime) = @_;
+	$chan =~ s/\n//;
+	$chan =~ s/\r//;
+	$nick = $NINFO{$tmpnum}->{NICK};
+	if ($chan =~ /,/ig) {
+		@channels = split(/,/, $chan);
+		foreach $chan (@channels) {
+##			debug("CREATE($chan): $nick");
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISON} = "1";
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISOP} = "1";
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISVO} = "0";
+			$CINFO{lc($chan)}->{CREATE} = $createtime;
+			delete($CMODE{lc($chan)});   ## New channel, MODES should be NULL
+			delete($CBAN{lc($chan)});   ## Bans also NULL
+		}
+	}
+	else {
+##		debug("CREATE($chan): $nick");
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISON} = "1";
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISOP} = "1";
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISVO} = "0";
+                $CINFO{lc($chan)}->{CREATE} = $createtime;
+		delete($CMODE{lc($chan)});   ## New channel, MODES should be NULL
+		delete($CBAN{lc($chan)});   ## Bans also NULL
+	}
+}
+sub user_join {
+	local($nick,$chan) = @_;
+	$tmpnum = $nick;
+	$nick = $NINFO{$nick}->{NICK};
+	$chan =~ s/\n//;
+	$chan =~ s/\r//;
+	if ($chan =~ /,/ig) {
+		@channels = split(/,/,$chan);
+		foreach $chan (@channels) {
+##			debug("JOIN($chan): $nick");
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISON} = "1";
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISOP} = "0";
+			$ONCHAN{$tmpnum}->{lc($chan)}->{ISVO} = "0";
+			if (isregistered_chan($chan)) {
+				$CDATA{lc($chan)}->{LASTUSED} = time;
+				if ($CDATA{lc($chan)}->{INFO} ne "") {
+					out("$CSNUM O $tmpnum :\002$chan\002 - $CDATA{lc($chan)}->{INFO}");
+				}
+				if (isauth_nick($nick)) {
+					if (&getchlevel($chan,$ISAUTH{$tmpnum})) {
+						out("$CSNUM M $chan +o $tmpnum");
+						&op_nick($chan,$nick);
+					}	
+				}
+				&checkpermban($chan,$nick);
+			}
+		}
+	}
+	else {
+##		debug("JOIN($chan): $nick");
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISON} = "1";
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISOP} = "0";
+		$ONCHAN{$tmpnum}->{lc($chan)}->{ISVO} = "0";
+		if (isregistered_chan($chan)) {
+			$CDATA{lc($chan)}->{LASTUSED} = time;
+			if ($CDATA{lc($chan)}->{INFO} ne "") {
+				out("$CSNUM O $tmpnum :\002$chan\002 - $CDATA{lc($chan)}->{INFO}");
+			}
+			if (isauth_nick($nick)) {
+				if (&getchlevel($chan,$ISAUTH{$tmpnum})) {
+					out("$CSNUM M $chan +o $tmpnum");
+					&op_nick($chan,$nick);
+				}	
+			}
+			&checkpermban($chan,$nick);
+		}
+	}
+}        	
+
+sub checkpermban {
+	local($chan,$nick) = @_;
+	getinfo_nick($nick);
+	$PERMBANS = $CDATA{$chan}->{PERMBANS};
+	foreach $i (split(/ƒ/,$PERMBANS)) {
+		if ($i ne "") {
+			($pb_mask,undef,undef,$pb_reasons) = split(/±/,$i,4);
+			$pb_mask =~ /(\S+)\!(\S+)\@(\S+)/;
+			$pbnick = $1;
+			$pbident = $2;
+			$pbhost = $3;
+			if (&uhcheck($pbnick,$pbident,$pbhost,$getinfo_nickname,$getinfo_ident,$getinfo_mask)) {
+				&out("$CSNUM M $chan \+b $pb_mask");
+				&mode($CSNUM,$chan,"+b $pb_mask");
+				&out("$CSNUM K $chan $tmpnum :\002PERMBAN\002: $pb_reasons");
+#	 &user_kick($CSNUM,$chan,$tmpnum,$pb_reasons);
+				return;
+			}
+		}
+	}
+	undef $PERMBANS;
+	undef $pbnick;
+	undef $pbident;
+	undef $pbhost;
+	undef $pb_mask;
+	undef $pb_reasons;
+
+}
+
+sub user_part {
+	local($tmpnum,$rest) = @_;
+	($chan,$rest) = split(/ /,$rest,2);
+	$nick = $NINFO{$tmpnum}->{NICK};
+	$chan =~ s/\n//g;
+	$chan =~ s/\r//g;
+##	debug("PART($nick): $chan");
+	delete($ONCHAN{$tmpnum}->{lc($chan)});
+}
+
+
+sub user_part2 {
+	local($nick,$chan) = @_;
+	$tmp = $NNUMERIC{lc($nick)};
+	&user_kick("SERV",$chan,$tmp,"SERVER KICK");
+}
+
+
+sub user_kick {
+	local($kicker,$kchan,$knum,undef) = @_;
+	$kchan =~ s/\n//g;
+	$kchan =~ s/\r//g;
+	delete($ONCHAN{$knum}->{lc($chan)});
+	$kicker = $NINFO{$kicker}->{NICK};
+	if ($kicker eq "") { $kicker = $CHANSERV; }
+##	debug("KICK($kicker) - $kchan - $NINFO{$knum}->{NICK}");
+}
+
+
+sub timerz {
+	local(undef) = @_;
+	$t = time - $NWINFO{LASTSYNCH};
+	if ($t > 600) {
+		&sync;
+		$NWINFO{LASTSYNCH} = time;
+	}
+}
+
+sub debug {
+	local($db) = @_;
+	if ($DEBUG == 1) {
+		if ($services_started == 1) {
+			print $SOCK "$CSNUM P $GW_MSG_CHAN :$db\n";
+		}
+		else {
+			print $SOCK "$GWNUM P $GW_MSG_CHAN :$db\n";
+		}
+	}
+}
+sub debug2 {
+	local($db) = @_;
+	if ($DEBUG == 1) {
+		if ($services_started == 1) {
+			print $SOCK "$CSNUM P $GW_DEBUG_CHAN2 :$db\n";
+                }
+                else {
+                        print $SOCK "$GWNUM P $GW_DEBUG_CHAN2 :$db\n";
+                }                                                              
+	}
+}
+
+sub chtopic {
+	local($nick,$chan,$topic) = @_;
+	$numnick = $nick;
+	$nick = $NINFO{$numnick}->{NICK};
+##	debug("TOPIC($chan): $nick - $topic");
+	if ($numnick ne $CSNUM) {
+		if (isregistered_chan($chan)) {
+			if ($CDATA{lc($chan)}->{LOCKTOPIC} ne "") {
+				$ts = $CDATA{lc($chan)}->{LOCKTOPIC};
+				&out("$CSNUM T $chan :$ts");
+			}
+		}
+	}
+}
+
+
+
+sub mode {
+	local($nick,$person,$mode) = @_;
+	if ($person !~ /^\#(\S+)/) {
+		$mode =~ s/://;
+		$tmpnum = $nick;
+	     	@getmode = split(//, $mode);
+		if (($getmode[0] eq "+") && ($getmode[1] eq "o")) {
+			$ISOPER{$tmpnum} = 1;
+			if (isauth_num($tmpnum)) {
+				$tmp = $ISAUTH{$tmpnum};
+				if ($NDATA{lc($tmp)}->{CSLVL} > 0) {
+					$CSERVICELVL{$tmpnum} = $NDATA{lc($tmp)}->{CSLVL};
+					$numnick = $tmpnum;
+					notice("Cservice Level \002$CSERVICELVL{$numnick}\002 Granted.");
+				}
+			}
+			debug("\002IRCOP\002: $NINFO{$tmpnum}->{NICK}");
+			&runoper;
+		}
+		elsif (($getmode[0] eq "-") && ($getmode[1] eq "o")) {
+			delete($ISOPER{$tmpnum});
+			delete($CSERVICELVL{$tmpnum});
+			debug("\002DE-IRCOP\002: $NINFO{$tmpnum}->{NICK}");
+		}
+	}
+	else {
+		$chan = $person;
+		($modes,$nicks) = split(/\s+/g, $mode,2);
+		if (($modes =~ /n/i) || ($modes =~ /t/i) || ($modes =~ /i/i) || ($modes =~ /s/i) || ($modes =~ /m/i) || ($modes =~ /p/i) || ($modes =~ /k/i) || ($modes =~ /l/i)) {
+			$OLDMODES = "";
+			$NEWMODES = "";
+			$ADDMODES = "";
+			$REMMODES = "";
+			@sm = split(//,$modes);
+			$MTYPE = "";
+			foreach $m (@sm) {
+				if ($m ne "") {
+					if ($m eq "\+") {
+						$MTYPE = "0";
+					}
+					elsif ($m eq "\-") {
+						$MTYPE = "1";
+					}
+					else {
+						if ($MTYPE == 0) {
+							$ADDMODES .= $m;
+						}
+						elsif ($MTYPE == 1) {
+							$REMMODES .= $m;
+						}
+					}
+				}
+			}
+			$ADDMODES =~ s/o//g;
+			$ADDMODES =~ s/v//g;
+			$ADDMODES =~ s/b//g;
+			$REMMODES =~ s/o//g;
+			$REMMODES =~ s/v//g;
+			$REMMODES =~ s/b//g;
+			($REMMODES,undef) = split(/ /,$REMMODES,2);
+			@M = split(//,$ADDMODES);
+			foreach $m (@M) {
+				$CMODE{lc($chan)}->{$m} = 1;
+			}
+			@M = split(//,$REMMODES);
+			foreach $m (@M) {
+				$CMODE{lc($chan)}->{$m} = 0;
+			}
+			getchmodes($chan);
+##	debug("NEWMODES($chan): $getchmodes_modes");
+		}									
+		if (isregistered_chan($chan)) {
+			if ($SINFO{$nick}->{SERVERNAME} ne "") {
+				wallops($OPERSERV,"Desynch: $chan");
+			}
+			else {
+				resetmodes($chan);
+			}
+		}
+		if (($modes =~ /o/i) || ($modes =~ /v/i) || ($modes =~ /b/i)) {
+			@tmp = split(//,$modes);
+			$mtype = "";
+			$mtotal = "";
+			$mnicks{deop} = "";
+			$mnicks{op} = "";
+			$mnicks{devo} = "";
+			$mnicks{vo} = "";
+			$nicks =~ s/\n//;
+			$nicks =~ s/\r//;
+			$nicks =~ s/\s* / /g;
+			@mnickstok = split(/\s* /, $nicks);
+			@mop = "";
+			@mdeop = "";
+			foreach $i (@tmp) {
+				$i =~ s/\n//;
+				$i =~ s/\r//;
+				if ($i eq "+") { $mtype = "add"; }
+				elsif ($i eq "-") { $mtype = "rem"; }				
+                                elsif ($i eq "l") {
+					if ($mtype eq "add") { 
+						$mtotal++; 
+					}
+				}
+                                elsif ($i eq "k") { $mtotal++; }
+				elsif ($i eq "b") {
+					$mnicks{$mtype}++;
+					$mtotal++;
+					$mtmp = $mtotal - "1";
+					if ($mtype eq "rem") {
+						$tmp = $mnickstok[$mtmp];
+						delete($CBAN{lc($chan)}->{lc($tmp)});
+##				debug("UNBAN($chan): $tmp");
+					}
+					if ($mtype eq "add") {
+						$tmp = $mnickstok[$mtmp];
+						$CBAN{lc($chan)}->{lc("$tmp")} = "1";
+##				debug("BAN($chan): $tmp");
+
+					}
+
+				}
+
+				elsif ($i eq "v") {
+					$mnicks{$mtype}++;
+					$mtotal++;
+					$mtmp = $mtotal - "1";
+			
+					if ($mtype eq "rem") {
+						push(@mdevo, $mnickstok[$mtmp]);
+						$tmp = $mnickstok[$mtmp];
+						$tmp = $NINFO{$tmp}->{NICK};
+						&devo_nick($chan,$tmp);
+##				debug("DEVOICE($chan): $tmp");
+					}
+					if ($mtype eq "add") {
+						push(@mvo, $mnickstok[$mtmp]);
+						$tmp = $mnickstok[$mtmp];
+						$tmp = $NINFO{$tmp}->{NICK};
+						&vo_nick($chan,$tmp);
+##				debug("VOICE($chan): $tmp");
+
+					}
+
+				}
+				elsif ($i eq "o") {
+					$mnicks{$mtype}++;
+					$mtotal++;
+					$mtmp = $mtotal - "1";
+			
+					if ($mtype eq "add") {
+						push(@mdeop, $mnickstok[$mtmp]);
+						$tmp = $mnickstok[$mtmp];
+						$tmp = $NINFO{$tmp}->{NICK};
+						&op_nick($chan,$tmp);
+##				debug("OP($chan): $tmp");
+        				}
+					if ($mtype eq "rem") {
+						push(@mop, $mnickstok[$mtmp]);
+						$tmp = $mnickstok[$mtmp];
+						$tmp = $NINFO{$tmp}->{NICK};
+						&deop_nick($chan,$tmp);
+##				debug("DEOP($chan): $tmp");
+
+					}
+				}
+			}
+		}
+	}
+}
+
+	
+sub info {
+	local($nick,$server) = @_;
+	if ($nick =~ "#") { }
+	else {
+		open(INFO, "./INFO");
+		@INFO = <INFO>;
+		close(INFO);
+		foreach $i (@INFO) {
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			out("$GWNUM 371 $nick :- $i");
+			out("$GWNUM 374 $nick :- End of /INFO list.");
+		}
+	}
+}
+sub ctcpreply {
+	local($nick,$service,$ctcp) = @_;
+	$ctcp =~ s/\n//;
+	$ctcp =~ s/\r//;
+	if ($service !~ /\#/i) {
+		if ($ctcp =~ /VERSION/i) {
+			&out("$service O $nick :\caVERSION $VER [IRC Services Package]\ca");
+		}	
+		elsif ($ctcp =~ /ping/i) {
+			($type,$ping) = split(/ /,$ctcp);			
+			$ping =~ s/\n//;
+			$ping =~ s/\n//;
+			out("$service O $nick :\caPING $ping\ca");
+		}
+		else {
+			out("$service O $nick :\caERROR Unknown CTCP Query\ca");
+		}
+	}
+}
+sub pong_server {
+	local($crap,$fromhost) = @_;
+	out("$GWNUM Z :$crap");
+##	debug("PONG: $crap - $SINFO{$crap}->{SERVERNAME}");
+##	&sync;
+}
+
+sub msg {
+	local($nick,$service,$cmd,$msg) = @_;
+	$cmd =~ s/\n//;
+	$cmd =~ s/\r//;
+	$exist = "no";
+	$msg = "$cmd $msg";
+	$msg =~ s/\n//;
+	$msg =~ s/\r//;
+
+	if ($cmd =~ /\ca/ig) {
+		&ctcpreply($nick,$service,$msg);
+	}
+	else {
+		if ($service eq $CSNUM) {
+			&run_chanserv($nick,$msg);
+		}
+		elsif ($service eq $OSNUM) {
+			&run_operserv($nick,$msg);
+		}
+	}
+}
+sub run_chanserv {
+	local($nick,$msg) = @_;
+	$service = $CHANSERV;
+	$numnick = $nick;
+	$nick = $NINFO{$numnick}->{NICK};
+	$msg =~ s/\n//;
+	$msg =~ s/\r//;
+	@tok = split(/\s* /,$msg);
+	$COM = uc($tok[0]);
+	getinfo_nick($nick);
+	if(!(-e "./INCLUDE/CHANSERV/$COM")) {
+		badcommand($COM);
+	}
+	else {
+		open(IN, "./INCLUDE/CHANSERV/$COM");
+		undef $/;
+		$eval = <IN>; close(IN); $/ = "\n";
+		eval($eval);
+		undef($eval);
+	}
+}	
+sub run_operserv {
+	local($nick,$msg) = @_;
+	$service = $OPERSERV;
+	$numnick = $nick;
+	$nick = $NINFO{$numnick}->{NICK};
+	$msg =~ s/\n//;
+	$msg =~ s/\r//;
+	@tok = split(/\s* /,$msg);
+	$COM = uc($tok[0]);
+	if ($ISOPER{$numnick} != 1) {
+		notice("$ERRORMSG_NOOPERACCESS");
+	}
+	elsif(!(-e "./INCLUDE/OPERSERV/$COM")) {
+		badcommand($COM);
+	}
+	else {
+		open(IN, "./INCLUDE/OPERSERV/$COM");
+		undef $/;
+		$eval = <IN>; close(IN); $/ = "\n";
+		eval($eval);
+		undef($eval);
+	}
+}	
+
+sub kill {
+	local($nick,$victim,$msg) = @_;
+	&numquit($victim);
+	debug("\002KILL:\002 $nick \002KILL\002 $victim");
+}
+sub user_quit {
+	local($nick,$qreasons) = @_;
+	&numquit($nick);
+}
+
+sub numquit {
+	local($tmpnum) = @_; ## Gets numeric of nickname immediately
+	$tmpnick = $NINFO{$tmpnum}->{NICK};
+	undef $NNUMERIC{lc("$tmpnick")};
+	$tmp = $NINFO{$tmpnum}->{SERVER};
+	$tmp = $SNUMERIC{lc($tmp)};
+##	debug("QUIT($tmpnum): $NINFO{$tmpnum}->{NICK}");
+	$SINFO{$tmp}->{COUNT}--; ## Removes SERVER USER COUNTER by one
+	$NWINFO{CURRENTUSERS}--; ## Removes NETWORK USER COUNTER by one
+	delete($NINFO{$tmpnum}); ## Deletes user's DB. SERVER,MASK,NICK,IDENT
+	delete($ISAUTH{$tmpnum}); ## Delete nickserv auth_as db, if any.
+	delete($ISOPER{$tmpnum}); ## Delete ircop recognism
+	delete($CSERVICELVL{$tmpnum}); ## Deletes Services flags
+	delete($ONCHAN{$tmpnum}); ## Deletes CHANS,OPS,VOICES DB
+}
+
+
+sub admin {
+	local($nick, $server) = @_;
+	if ($ADMIN1 ne "") {
+		&out("$GWNUM 256 $nick :Administrative infomation for $SERVERNAME");
+		&out("$GWNUM 257 $nick :$ADMIN1");
+		&out("$GWNUM 258 $nick :$ADMIN2");
+		&out("$GWNUM 259 $nick :$ADMIN3");
+	}
+	else {
+		&out("$GWNUM 423 $nick :No administrative infomation available for: $SERVERNAME");
+	}
+}
+sub ver {
+	local($nick, $server) = @_;
+	&out("$GWNUM 351 $nick :$VER - $SERVERNAME");
+}
+
+sub reg_user {
+	local($tmpnum,$two) = @_;
+	## B   [NICK] G3N3X15 1         960348920 Vortex ad202.166.104.111.magix.com.sg +owg DKpmhv BAB :Blue Devil
+	## BAB [NICK] shit    900001037
+	($one,$two,$three,$four,$five,$six,$seven,$eight,$nine) = split(/ /,$two,9);
+	if (($three eq "") && ($four eq "")) {
+		$oldnick = $NINFO{$tmpnum}->{NICK};
+		$newnick = $one;
+		$NINFO{$tmpnum}->{NICK} = $one;
+		$NNUMERIC{lc("$newnick")} = $NNUMERIC{lc("$oldnick")};
+		undef($NNUMERIC{lc("$oldnick")});
+##		debug("$oldnick NEWNICK $one");
+	}
+	else {
+	## B   [NICK] G3N3X15 1         960348920 Vortex ad202.166.104.111.magix.com.sg +owg DKpmhv BAB :Blue Devil
+	## BAB [NICK] shit    900001037
+	##            $one    $two      $three    $four  $five                          $six $seven $eight $nine
+		if ($six !~ /\+/) {
+			$eight = $seven;
+		}
+		$nick = $one;
+		$NINFO{$eight}->{NICK} = $one;
+		$NINFO{$eight}->{IDENT} = $four;
+		$NINFO{$eight}->{MASK} = $five;
+		$NINFO{$eight}->{SERVER} = $SINFO{$tmpnum}->{SERVERNAME};
+		$NNUMERIC{lc("$one")} = $eight;
+		delete($CSERVICELVL{$eight});
+		delete($ISOPER{$eight});
+		delete($ISAUTH{$eight});
+		debug("\002NEW CLIENT\002: $eight\%\002$one\002\!$four\@$five :: $SINFO{$tmpnum}->{SERVERNAME}");
+		if ($six =~ /\+o/) {
+			$ISOPER{$eight} = 1;
+			debug("\002IRCOP\002: $NINFO{$eight}->{NICK}");
+			&runoper;
+		}
+		$SINFO{$tmpnum}->{COUNT}++;
+		$NWINFO{CURRENTUSERS}++;
+		if ($NWINFO{MAXUSERS} < $NWINFO{CURRENTUSERS}) { $NWINFO{MAXUSERS} = $NWINFO{CURRENTUSERS}; }
+
+		if ((!(isclone($five))) && ($CLONECHECK == 1)) {
+			$userhost = $five;
+			&checkclone;
+		}
+	}
+}
+
+sub checkclone {
+	$checkclone{x}->{$userhost}->{num} = "0";
+	foreach $i (keys %NINFO) {
+		$tmp = $NINFO{$i}->{MASK};
+		if ((lc("$userhost") ne lc("$NICKHOST")) && (lc("$userhost") eq lc("$tmp"))) {
+			$checkclone{x}->{$userhost}->{num}++;
+		}
+	}
+	if ($checkclone{x}->{$userhost}->{num} > $CLONELIMIT) {
+		debug("\002CLONE ALERT\002: $checkclone{x}->{$userhost}->{num} connections from *\!*\@$userhost");
+	}
+	delete($checkclone{x});
+}
+			
+			
+sub stats {
+	local($nick,$type,$server) = @_;
+	if ($type eq "u") {
+		$olt = time - $NWINFO{UPTIME};
+		$secs = "00";
+		$mins = "00";
+		$hrs = "0";
+		$days = "0";
+		while ($olt > 59) {
+	            	$olt = $olt - 60;
+			$mins++;
+		}
+		while ($mins > 59) {
+                	$mins = $mins - 60;
+                        $hrs++;
+		}
+            while ($hrs > 23) {
+                  $hrs = $hrs - 24;
+            	$days++;
+            }
+            $secs = $olt;
+		&out("$GWNUM 242 $nick :Server Up $days days, $hrs:$mins:$secs");
+		&out("$GWNUM 250 $nick :Highest connection count: 2 (2 clients)");
+	}
+	&out("$GWNUM 219 $nick $type :End of /STATS report");
+}
+
+
+sub serv_quit {
+	local($hub,$leaf,$time,$reasons) = @_;
+	$leaf =~ s/\n//g;
+	if (lc("$time") eq lc("0")) {
+		close($SOCK);
+		&sync;
+		foreach $i (keys %NINFO) {
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			if ($i ne "") {
+				&numquit($i);
+			}
+		}
+		undef(%SINFO);
+		undef(%cinfo);
+		undef(%NINFO);
+		undef(%nnumeric);
+		undef(%snumeric);
+		&kill_services;
+		sleep(10);
+		&connect;
+##		&start_services;
+	}
+	else {
+## :GeNeXiS SQUIT hub.severious.com.sg 900000000 :SHIT U
+## 	local($hub,$leaf,$time,$reasons) = @_;
+		foreach $i (keys %SINFO)
+		{
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			if ($i ne "")
+			{
+				if ($SINFO{$i}->{HUB} eq $SNUMERIC{lc($leaf)})
+				{
+					serv_quit(undef,$SINFO{$i}->{SERVERNAME},"900000000",undef);
+				}
+			}
+		}
+		foreach $i (keys %NINFO) {
+			$i =~ s/\n//;
+			$i =~ s/\r//;
+			if (($i ne "") && ($NINFO{$i}->{NICK} ne "")) {
+				$tmp = $NINFO{$i}->{SERVER};
+				if (lc($tmp) eq lc($leaf)) {
+##					debug("CLIENT_NETSPLIT: $NINFO{$i}->{NICK}");
+					&numquit($i);
+				}
+			}
+		}
+
+		$tmp = $SNUMERIC{lc($leaf)};
+		debug("\002SERVSQUIT:\002 $leaf");
+		undef($SNUMERIC{lc($leaf)});
+		delete($SINFO{$tmp});
+		if ($JUPE{$leaf}->{DEFINE} == 1) {
+			$JUPE{$leaf}->{DEFINE} = 0;
+			delete($JUPE{$leaf});
+		}
+	}
+	undef(%torem);
+	undef(%toresquit);
+}
+		
+
+sub motd {
+	local($nick, $server) = @_;
+	debug("\002MOTD:\002 $NINFO{$nick}->{NICK}");
+	if (-e "gworld.motd") {
+		open(FD,"gworld.motd");
+		@fd = <FD>;
+		close(FD);
+		out("$GWNUM 375 $nick :$SERVERNAME Message of the Day -");
+		foreach $i (@fd) {
+			$i =~ s/\n/ /;
+			out("$server 372 $nick :- $i");
+		}	
+		out("$GWNUM 376 $nick :End of /MOTD command.");
+	}
+	else {
+		out("$GWNUM 375 $nick :- $SERVERNAME Message of the Day -");
+		out("$GWNUM 372 $nick :- No MOTD file");
+		out("$GWNUM 376 $nick :End of /MOTD command.");
+	}
+}
+sub runoper {
+                open(IN, "./DB/OPER.CMD");
+                undef $/;
+                $eval = <IN>; close(IN); $/ = "\n";
+                eval($eval);
+                undef($eval);                                                  
+}
+1;
+
+

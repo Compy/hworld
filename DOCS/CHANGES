@@ -1,0 +1,59 @@
+              ______    _       __           __    __      ___ ____
+             / ____/   | |     / /___  _____/ /___/ /_   _<  // __ \
+            / / _______| | /| / / __ \/ ___/ / __  /| | / / // / / /
+           / /_/ /_____/ |/ |/ / /_/ / /  / / /_/ / | |/ / // /_/ /
+           \____/      |__/|__/\____/_/  /_/\__,_/  |___/_(_)____/
+=======================================================================================
+7-3-2001
+o Made somes changes to cservmsg();
+o Added cservmsg into some commands.
+
+6-3-2001
+o Fixed major BURST bug
+o GWorld now records channel creation time
+o Modified STATUS in chanserv to show channel creation time
+
+5-3-2001
+o Fixed minor bug in reghub() function.
+o Added new command, SHOW for level 700.
+o Added new function, num2int()
+o Added explaination to conf file
+o Added Signal handling
+
+4-3-2001
+o Added GLINE parsing functions.
+o Fixed minor bug in BURST()
+
+2-3-2001
+o Added commands logging system.
+o Added cservmsg() function to send notices to cservice admins.
+o Added clone detection functions for connecting clients.
+o Added new conf line: CLONECHECK[1|0], to enable clone detections.
+o Fixed minor serv_quit() bug in detecting juped servers
+o Added Unauthorised server detecting function, making use of JUPEACTION
+  in the conf.
+o Added ADDSERVER,DELSERVER,LISTSERVERS commands to operserv
+o Modified SPLITEDSERVERS to show server numerics for easy juping.
+
+1-3-2001
+o Added JUPE and JLIST cmd
+o Modified SPLITEDSERVERS to show jupitered servers
+o Removed the UNJUPE command
+o Fixed minor SQUIT bug
+28-2-2001
+o Added clone database
+o Modified REMCLONE cmd.
+
+25-2-2001
+o Added ADDCLONE, REMCLONE, CLONELIST to operserv
+o Added clones exempt function to SHOWCLONES
+
+24-2-2001
+o Made GWorld-1.0 compatiable with undernet's u2.10.10.pl13, extended
+  numerics.
+o Added DO command for operserv.
+
+20-2-2001
+o Added CLEARCHAN to operserv.
+
+--- snip ---

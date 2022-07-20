@@ -1,0 +1,8 @@
+Used to TOGGLE the noexpire function of a nickname or channel. When the function is TOGGLE 'ON'
+for a nickname or channel, it will not be listed in the 'LISTDEAD' or 'CLEANDEAD' command.
+Use the command again and it will be TOGGLED 'OFF'. If no nickname or channel is specified,
+it will list all nicknames and channels that will not expire.
+
+EXAMPLE: /msg %CS% NOEXPIRE GeNeXiS
+         /msg %CS% NOEXPIRE #Gworld
+SEEALSO: RESTRICT

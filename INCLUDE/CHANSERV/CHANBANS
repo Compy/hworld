@@ -1,0 +1,29 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif(&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	notice("Channel Bans: \002$tok[1]\002");
+	notice("===============================================");
+	$found = 0;
+	$count=0;
+	foreach $i (keys %{$CBAN{lc($tok[1])}}) {
+		if ($i ne "") {
+			$count++;
+			$found = 1;
+			notice(" \002$count\.\002 $i");
+		}
+	}
+	if ($found == 0) {
+		notice(" None found.");
+	}
+        notice("===============================================");             
+}	

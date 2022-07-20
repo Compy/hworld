@@ -1,0 +1,5 @@
+List all servers currently JUPITERED.
+
+EXAMPLE: /msg %OS% JLIST
+SEEALSO: JUPE
+

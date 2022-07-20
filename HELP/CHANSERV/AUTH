@@ -1,0 +1,5 @@
+This command makes services recognises you as the owner of the nickname, and you will be able
+to access to the different channel access levels under this nickname.
+
+EXAMPLE: /msg %CS% AUTH GeNeXiS MySeCrETPaSs
+SEEALSO: REGISTER DEAUTH ACCESS 

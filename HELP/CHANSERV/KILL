@@ -1,0 +1,5 @@
+Makes services remove a user using your registered nickname. After the user is removed, you will
+be able to use back your registered nickname.
+
+EXAMPLE: /msg %CS% KILL GeNeXiS MySeCrEtPaSs
+SEEALSO: REGISTER AUTH

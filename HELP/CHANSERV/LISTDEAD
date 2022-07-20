@@ -1,0 +1,4 @@
+Lists all expired nicknames and channels. This command will NOT delete the expired nicknames
+and channels.
+
+SEEALSO: CLEANDEAD NOEXPIRE

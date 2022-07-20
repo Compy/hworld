@@ -1,0 +1,29 @@
+if (!(getoperlevel($numnick))) {
+	error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[3] eq "") {
+        syntaxerr;
+}   
+elsif (!(isvalid($tok[1]))) {
+	error($tok[1],"is not a valid channel name.");
+}
+elsif (!(isonline_nick($tok[2]))) {
+	error($tok[2],"is not online.");
+}
+elsif(!(ison_user($tok[1],$tok[2]))) {
+        error($tok[2],"is not on channel $tok[1].");
+}
+else {
+	(undef,undef,undef,$kickreason) = split(/ /,$msg,4);
+	out("$OSNUM J $tok[1]");
+	out("$GWNUM M $tok[1] +o $OSNUM");
+	$tmp = $NNUMERIC{lc($tok[2])};
+	out("$OSNUM K $tok[1] $tmp :$kickreason");
+	out("$OSNUM L $tok[1]");
+	notice("Kicked \002$tok[2]\002 out of channel \002$tok[1]\002.");
+	getinfo_nick($nick);
+	wallops($OPERSERV,"$nick\[$getinfo_halfhost\] \002KICK\002 $tok[2] \002(\002$tok[1] - $kickreason\002)\002");
+	&addlog;
+
+
+}

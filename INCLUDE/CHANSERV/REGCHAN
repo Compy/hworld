@@ -1,0 +1,44 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif (isrestricted_chan($tok[1])) {
+	notice("This is a restricted channel - \002$isrestricted_reason\002");
+}
+elsif (isregistered_chan($tok[1])) {
+	notice("\002$tok[1]\002 - is already registered.");
+}
+elsif (!(isvalid($tok[1]))) {
+	notice("\002$tok[1]\002 - is not a valid channel name.");
+}
+elsif ($tok[1] =~ /[\}\{\(\)\]\[]/ig) {
+	notice("\002$tok[1]\002 - Invalid characters inside channel name");
+}
+elsif (length($tok[1]) > 25) {
+	notice("\002$tok[1]\002 - Channel name over MAX of 25 characters");
+}
+elsif (!(isop_user($tok[1],$nick))) {
+	notice("You must have OPS on $tok[1] to register it.");
+}
+else {
+	$CHANCOUNT=0;
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregistered_chan($i))) {
+			if (lc($CDATA{$i}->{OWNER}) eq lc($ISAUTH{$numnick})) {
+				$CHANCOUNT++;
+			}
+		}
+	}
+	if ($CHANCOUNT >= $MAXCHANS) {
+		notice("You already own a maximum of \002$MAXCHANS\002 channels.");
+	}
+	else {
+		&addchan($tok[1],$ISAUTH{$numnick});
+		notice("\002Registration Successful.\002");		
+		notice("$tok[1] is now registered under $ISAUTH{$numnick}.");
+		notice("Channels not used for 21 days will be automatically deregistered.");
+	}	
+}
+	

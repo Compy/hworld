@@ -1,0 +1,33 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[2] eq "") {
+        syntaxerr;
+}
+elsif (isrestricted_nick($tok[1])) {
+        notice("\002$tok[1]\002 - is being restricted from registration.");
+}
+elsif (isregistered_nick($tok[1])) {
+        notice("\002$tok[1]\002 - is already registered.");
+}
+elsif (length($tok[2]) < 6) {
+        notice("\002$tok[1]\002 - Please choose a more secure password.");
+} 
+else {
+	$tmppass = crypt($tok[2],"GW");
+	$NDATA{lc($tok[1])}->{REGISTERED} = 1;
+	$NDATA{lc($tok[1])}->{PASSWD} = $tmppass;
+	$NDATA{lc($tok[1])}->{LASTHOST} = "$tok[1]\!Cservice\@$NICKHOST";
+	$NDATA{lc($tok[1])}->{LASTAUTH} = time;
+	$NDATA{lc($tok[1])}->{REGDATE} = time;
+	$NDATA{lc($tok[1])}->{CSLVL} = 0;
+	$NDATA{lc($tok[1])}->{NOEXPIRE} = 0;
+	notice("Added nickname \002$tok[1]\002 with password \002$tok[2]\002.");
+	&addlog;
+}
+
+
+

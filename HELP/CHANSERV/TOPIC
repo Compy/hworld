@@ -1,0 +1,5 @@
+Makes %CS% change the channel topic. If the LOCKTOPIC function is turned 'ON', it will NOT
+be able to change the topic. 
+
+EXAMPLE: /msg %CS% TOPIC #Gworld This is a new topic
+SEEALSO: LOCKTOPIC

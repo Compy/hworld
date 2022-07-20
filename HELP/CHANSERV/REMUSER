@@ -1,0 +1,5 @@
+Removes a user from the channel access list. You can only remove a user whose level is lower 
+then yourself.
+
+EXAMPLE: /msg %CS% REMUSER #Gworld GeNeXiS
+SEEALSO: ADDUSER LISTUSERS

@@ -1,0 +1,5 @@
+This command is used to de-authenticate yourself, which makes services stop recognising you as 
+the owner of the nickname you auth'd as before.
+
+EXAMPLE: /msg %CS% DEAUTH
+SEEALSO: AUTH REGISTER

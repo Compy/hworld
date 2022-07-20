@@ -1,0 +1,65 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[2] eq "") {
+        syntaxerr;
+}
+
+else {
+	if ($tok[2] eq "-t") {
+		(undef,$glinetoadd,undef,$glinetime,$glinereasons) = split(/ /,$msg,5);
+	}
+	elsif ($tok[2] ne "-t") {
+		(undef,$glinetoadd,$glinereasons) = split(/ /,$msg,3);
+		$glinetime = "1";
+	}
+	if ($glinereasons eq "") {
+		syntaxerr;
+	}
+	elsif (($glinetime !~ /^[0-9]+$/) || ($glinetime < 1) || ($glinetime > 48)) {
+		notice("GLINE duration must be a integer from 1 to 48");
+	}
+	else {
+		if ($tok[1] =~ /(\S+)\@(\S+)/) {
+			$glinetoadd = $tok[1];
+			($undef,$gc) = split(/\@/,$glinetoadd,2);
+			if (wccheck($gc,"*")) {
+				notice("Please add a more secure GLINE.");
+				getinfo_nick($nick);
+				wallops($OPERSERV,"$nick\[$getinfo_halfhost\] attempted GLINE of $glinetoadd");
+			}
+			elsif (isgline($tok[1])) {
+				error($tok[1],"is already an active GLINE.");
+			}
+			else {
+				&addgline($glinetoadd,$ISAUTH{$numnick},$glinetime,$glinereasons);
+				getinfo_nick($nick);
+				wallops($OPERSERV,"$nick\[$getinfo_halfhost\] add \002GLINE\002 $glinetoadd ($glinetime hours - $glinereasons)");
+				countgline($glinetoadd);
+				notice("GLINE was active for \002$GLC\002 users.");
+			}
+		}
+		else {
+			if (!(isonline_nick($tok[1]))) {
+				error($tok[1],"is not on IRC.");
+			}
+			else {
+				getinfo_nick($tok[1]);
+				$glinetoadd = "\*\@$getinfo_mask";
+				if (isgline($glinetoadd)) {
+					error($tok[1],"is already an active GLINE.");
+				}
+				else {
+					&addgline($glinetoadd,$ISAUTH{$numnick},$glinetime,$glinereasons);
+					getinfo_nick($nick);
+					wallops($OPERSERV,"$nick\[$getinfo_halfhost\] add \002GLINE\002 $glinetoadd ($glinetime hours - $glinereasons)");
+					countgline($glinetoadd);
+					notice("GLINE was active for \002$GLC\002 users.");
+				}
+			}
+		}
+	&addlog;
+	}
+}
+
+

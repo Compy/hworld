@@ -1,0 +1,20 @@
+if ($tok[2] eq "") {
+        syntaxerr;
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+        notice("\002$tok[1]\002 - is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");             
+}
+elsif (crypt($tok[2],"GW") ne $NDATA{lc($ISAUTH{$numnick})}->{PASSWD}) {
+        notice("Incorrect password for channel owner nickname.");
+}                                                                      
+else {
+	delete($CDATA{lc($tok[1])});
+	out("$CSNUM L $tok[1] :Channel has been DROPPED by channel owner $nick");
+	notice("Channel $tok[1] is been successfully unregistered.");
+}

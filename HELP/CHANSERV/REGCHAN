@@ -1,0 +1,8 @@
+This command is used to register a channel under your nickname. Once the channel is registered,
+you will be able to add and remove users to its access list. Nobody can remove you as the owner
+except you unregister the channel yourself or the cservice admin deletes your channel.
+
+Pls note that channels not used for 21 days will be expired and automatically deleted.
+
+EXAMPLE: /msg %CS% REGCHAN #Teens
+SEEALSO: DROP ADDUSER REMUSER LISTUSERS

@@ -1,0 +1,32 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	if ($tok[2] ne "") {
+		(undef,undef,$LOCKTOPIC) = split(/ /,$msg,3);
+	}
+	elsif ($tok[2] eq "") {
+		undef $LOCKTOPIC;
+	}
+	$CDATA{lc($tok[1])}->{LOCKTOPIC} = $LOCKTOPIC;
+	if ($LOCKTOPIC eq "") {
+		notice("Resetted LOCKTOPIC for \002$tok[1]\002.");
+	}
+	else {
+		notice("LOCKTOPIC for \002$tok[1]\002 changed to \'$LOCKTOPIC\'.");
+		out("$CSNUM T $tok[1] :$LOCKTOPIC");
+	}
+	undef $LOCKTOPIC;
+}
+
+
+

@@ -1,0 +1,12 @@
+Clears the channel of the options you specified. The channel NEED NOT BE REGISTERED with
+%CS%. Options:
+             o :: OPS
+             b :: BANS
+             m :: MODES
+             u :: USERS
+If no options are specified, then it will use the defaults (omb).
+
+EXAMPLE: /msg %OS% CLEARCHAN #Hack om
+         /msg %OS% CLEARCHAN #CHAT
+
+

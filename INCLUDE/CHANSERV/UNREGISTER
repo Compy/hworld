@@ -1,0 +1,19 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isauth_nick($nick))) {
+	notice("You must be authenticated to use this command");
+}
+elsif (lc($ISAUTH{$numnick}) ne lc($nick)) {
+	notice("You must using your registered nickname when using this command.");
+}
+elsif (crypt($tok[1],"GW") ne $NDATA{lc($nick)}->{PASSWD}) {
+	notice("Password incorrect.");
+}
+else {
+	notice("Purging your nickname records ...");
+	&delnick($nick);
+	delete($ISAUTH{$numnick});
+	delete($CSERVICELVL{$numnick});
+	notice("\002Unregistration Successful\002. Your nickname is nolonger in my records.");	
+}

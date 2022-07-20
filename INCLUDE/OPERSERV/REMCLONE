@@ -1,0 +1,40 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+
+else {
+	if ($tok[1] !~ /^[0-9]+$/) {
+		if (!(isclone($tok[1]))) {
+			error($tok[1],"is \002not\002 exempted from clone search.");
+		}
+		else {
+			$CLONE{lc($tok[1])}->{DEFINE} = 0;
+			notice("Removed '\002$tok[1]\002' from clone search exempt.");
+		}
+	}
+	else {
+		$REMCLONE=0;
+		$REMCLONEFOUND=0;
+		foreach $i (keys %CLONE) {
+			if (($i ne "") && (isclone($i))) {
+				$REMCLONE++;
+				if ($REMCLONE == $tok[1]) {
+					$CLONE{lc($i)}->{DEFINE} = 0;
+					notice("Removed '\002$i\002' from clone search exempt.");
+					$REMCLONEFOUND=1;
+				}
+			}
+		}
+		if($REMCLONEFOUND == 0) {
+			notice("Unable to locate clone address \[$tok[1]\].");
+		}
+		undef $REMCLONEFOUND;
+		undef $REMCLONE;
+	}
+
+}
+
+

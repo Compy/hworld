@@ -1,0 +1,4 @@
+Lists all active bans in a registered channel.
+
+EXAMPLE: /msg %CS% CHANBANS #Gworld
+SEEALSO: CLEAR

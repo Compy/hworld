@@ -1,0 +1,18 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+
+else {
+	if (isclone($tok[1])) {
+		error($tok[1],"is \002already\002 exempted from clone search.");
+	}
+	else {
+		$CLONE{lc($tok[1])}->{DEFINE} = 1;
+		notice("Added '\002$tok[1]\002' to clone search exempt.");
+	}
+	undef $AC_MASK;
+}
+

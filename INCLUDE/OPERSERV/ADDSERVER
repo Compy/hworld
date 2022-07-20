@@ -1,0 +1,33 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[3] eq "") {
+        syntaxerr;
+}
+elsif (($tok[2] !~ /^[0-9]+$/) || ($tok[2] < 0) || ($tok[2] > 63)) {
+	syntaxerr;
+}
+elsif ($SDATA{lc($tok[1])}->{DEFINE} == 1) {
+	error($tok[1],"is already in server database.");
+}
+else {
+	$FOUND=0;
+	foreach $i (keys %SDATA) {
+		if (($i ne "") && ($SDATA{$i}->{NUMERIC} == $tok[2])) {
+			$FOUND=1;
+			break;
+		}
+	}
+	if ($FOUND == 1) {
+		notice("Server numeric \002$tok[2]\002 is already in use.");
+	}
+	else {
+		open(FH,">>./DB/servers.db");
+		printf(FH "%s %s %d\n",$tok[1],$tok[3],$tok[2]);				
+		close(FH);
+		undef %SDATA;
+		&synch_servers;
+		notice("Added server \002$tok[1]\002 with numeric \[$tok[2]\], admin \002$tok[3]\002.");
+	}
+}
+

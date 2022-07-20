@@ -1,0 +1,3 @@
+Sends a NOTICE to all network IRCops
+
+EXAMPLE: /msg %OS% OMSG Can all IRCops pls join #opers now.

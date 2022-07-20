@@ -1,0 +1,20 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[2] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif(&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+        error($tok[1],"insufficient access to use this command.");
+}
+elsif (locktopic($tok[1])) {
+	error($tok[1],"channel topic has been locked.");
+}
+else {
+	local(undef,undef,$newtopic) = split(/ /,$msg,3);
+	out("$CSNUM T $tok[1] :$newtopic");
+	notice("Channel topic changed to '$newtopic'");
+}

@@ -1,0 +1,13 @@
+This command is used to give IRCops the different cservice levels. They must have a registered 
+nickname. Here are the level summary:
+      Lvl    0: Removes Cservice level from the nickname
+      Lvl  600: Global IRCop
+      Lvl  700: Server Admin
+      Lvl  800: Cservice Admin
+      Lvl  900: Network Commitee member
+      Lvl 1000: Services Admin
+
+EXAMPLE: /msg %CS% CSET GeNeXiS 800
+         /msg %CS% CSET LameOper 0
+
+SEEALSO: ADMINS

@@ -1,0 +1,45 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+else {
+	local($chan) = lc($tok[1]);
+	notice("Status and Records of: \002$tok[1]\002");
+	notice("=============================================================");
+	notice("\002Owner\002: $CDATA{$chan}->{OWNER}");
+	$tmp = localtime($CDATA{$chan}->{REGDATE});
+	notice("\002Registered On\002: $tmp");
+        $tmp = $CDATA{$chan}->{INFO};
+        if ($tmp eq "") {
+                $tmp = "none";
+        }                                                                      
+	notice("\002ChanInfo\002: $tmp");
+	$tmp = $CDATA{$chan}->{LOCKMODE};
+	if ($tmp eq "") {
+		$tmp = "none";
+	}
+	notice("\002LockMode:\002 $tmp");
+        $tmp = $CDATA{$chan}->{LOCKTOPIC};
+        if ($tmp eq "") {
+                $tmp = "none";
+        }
+        notice("\002LockTopic:\002 $tmp");
+        $tmp = time - $CDATA{lc($tok[1])}->{LASTUSED};
+        &gettime($tmp);                             
+	notice("\002Last join\002: \002$gettime_days\002 days $gettime_hours:$gettime_mins:$gettime_secs");
+	$tmp = $CDATA{lc($tok[1])}->{USERS};
+	$count = 0;
+      @tmpusers = split(/ /,$tmp);
+      foreach $i (@tmpusers) {
+		if ($i ne "") {
+			$count++;
+		}
+
+      }
+	notice("\002Total Users:\002 $count");
+	if ($CDATA{$chan}->{NOEXPIRE} == 1) {
+		notice("This channel will not expire.");
+	}
+}

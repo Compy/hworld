@@ -1,0 +1,5 @@
+Returns the records and contents of a registered nickname. Used to find out when the nickname was
+last used and who last used it.
+
+EXAMPLE: /msg %CS% INFO GeNeXiS
+SEEALSO: STATUS

@@ -1,0 +1,10 @@
+Adds a GLINE (Global BAN) on the given hostmask. If a nickname is specified, it will add GLINE according to the *@HOST.DOMAIN of the client. 
+If a -t parameter is specified, it will add glines according to the number of hours stated.
+
+EXAMPLE: /msg %OS% ADDGLINE Lamer -t 5 Stay out of the network 
+ - This will add a 5 hour GLINE. The MAX time limits for this function is 48 hours.
+
+         /msg %OS% ADDGLINE *@sub.isp.com Stay out of the network 
+ - If the -t parameter is not specified, it will add a GLINE for 3600 seconds(1 hour).
+
+SEEALSO: REMGLINE GLIST

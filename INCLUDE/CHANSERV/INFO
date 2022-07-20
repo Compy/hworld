@@ -1,0 +1,21 @@
+if ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_nick($tok[1]))) {
+	notice("\002$tok[1]\002 - is not a registered nickname.");
+}
+else {
+	notice("Contents and records of: \002$tok[1]\002");
+	notice("=============================================================");
+	local($tmphandle) = lc($tok[1]);
+	notice("Last hostmask: $NDATA{$tmphandle}->{LASTHOST}");
+	$tmp = time - $NDATA{$tmphandle}->{LASTAUTH};
+	gettime($tmp);
+	notice("Last seen: $gettime_days days $gettime_hours:$gettime_mins:$gettime_secs");
+	$tmp2 = localtime($NDATA{$tmphandle}->{REGDATE});
+	notice("Registered on: $tmp2");
+	if ($NDATA{$tmphandle}->{NOEXPIRE} == 1) {
+		notice("This nickname will not expire");
+	}
+	notice("=============================================================");
+}

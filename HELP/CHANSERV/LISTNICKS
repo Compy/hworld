@@ -1,0 +1,5 @@
+Lists all registered nicknames matching the specified wildcard.
+
+EXAMPLE: /msg %CS% LISTNICKS *s*e*x*
+         /msg %CS% LISTNICKS *oper*
+SEEALSO: LISTCHANS

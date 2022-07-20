@@ -1,0 +1,226 @@
+sub addlog {
+	if ($service eq $CHANSERV) {
+		open(WL,">>./LOGS/cservice.log");
+		($wl_com,$wl_rest) = split(/ /,$msg,2);
+		local(undef,$month,$day,undef,$year) = split(/\s* /,localtime(time),5);
+		$wl_time = "$day $month $year";
+		$wl_user = $ISAUTH{$numnick};
+		getinfo_nick($nick);
+		print WL "$wl_time\: $wl_user\[$getinfo_fullhost\] ($wl_com) $wl_rest\n";
+		close(WL);
+	}
+        elsif ($service eq $OPERSERV) {
+                open(WL,">>./LOGS/operserv.log");
+                ($wl_com,$wl_rest) = split(/ /,$msg,2);
+                local(undef,$month,$day,undef,$year) = split(/\s* /,localtime(time),5);
+                $wl_time = "$day $month $year";
+                $wl_user = $ISAUTH{$numnick};
+                getinfo_nick($nick);
+                print WL "$wl_time\: $wl_user\[$getinfo_fullhost\] ($wl_com) $wl_rest\n";
+                close(WL);
+        }
+}
+sub isclone {
+	local($mask) = @_;
+	if ($CLONE{lc($mask)}->{DEFINE} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub getoperlevel {
+	local($numnick) = @_;
+	if ($CSERVICELVL{$numnick} >= $HELP{$service}->{$COM}->{LEVEL}) {
+		return 1;
+	}
+	return 0;
+}
+sub out {
+	local($string) = @_;
+	print $SOCK "$string\n";
+}
+sub error {
+	local($subj,$errmsg) = @_;
+	notice("\002$subj\002 - $errmsg");
+}
+sub notice {
+	local($string) = @_;
+	if ($service eq $CHANSERV) {
+		out("$CSNUM O $numnick :$string\n");
+	}
+	elsif ($service eq $OPERSERV) {
+		out("$OSNUM O $numnick :$string\n");
+	}
+}
+sub privmsg {
+	local($string) = @_;
+	if ($service eq $CHANSERV) {
+		out("$CSNUM P $numnick :$string\n");
+	}
+	elsif ($service eq $OPERSERV) {
+		out("$OSNUM P $numnick :$string\n");
+	}
+}
+sub wallops {
+	local($wallnick,$wallstring) = @_;
+	out(":$wallnick WALLOPS :$wallstring");
+}
+sub cservmsg {
+	local($string) = @_;
+	foreach $i (keys %CSERVICELVL) {
+		if (($CSERVICELVL{$i} >= $CSERVICE) && ($i ne ""))  {
+			out("$CSNUM O $i :\002\[\002CservMsg\002\]\002 $string");
+		}
+	}
+}
+sub opermsg {
+	local($string) = @_;
+	foreach $i (keys %ISOPER) {
+		if ($i ne "") {
+			out("$OSNUM O $i :$string");
+		}
+	}
+}
+
+## globmsg(string) :: Sends a string to all users on the network.
+sub gettime {
+	local($time) = @_;
+	$gettime_secs = "00";
+	$gettime_mins = "00";
+	$gettime_hours = "0";
+	$gettime_days = "0";
+	while ($time > 59) {
+		$time = $time - 60;
+		$gettime_mins++;
+	}
+	while ($gettime_mins > 59) {
+		$gettime_mins = $gettime_mins - 60;
+		$gettime_hours++;
+	}
+	while ($gettime_hours > 23) {
+      	$gettime_hours = $gettime_hours - 24;
+           	$gettime_days++;
+	}
+	$gettime_secs = $time;
+
+}
+sub syntaxerr {
+	local($realsyntax) = $HELP{$service}->{$COM}->{SYNTAX};
+	if ($service eq $CHANSERV) {
+		out("$CSNUM O $numnick :\002Syntax:\002 $realsyntax");
+	}
+	if ($service eq $OPERSERV) {
+		out("$OSNUM O $numnick :\002Syntax:\002 $realsyntax");
+	}
+}
+sub noautherr {
+        if ($service eq $CHANSERV) {
+                out("$CSNUM O $numnick :You must be authenticated to use this command.");
+        }
+        if ($service eq $OPERSERV) {
+                out("$OSNUM O $numnick :You must be authenticated to use this command.");
+        }
+}             
+## nocsaccess() :: Not enough Cservice Level to use command
+## nochanaccess() :: No enough Channel Access to use command
+## nooperaccess() :: No IRCop Access
+sub badcommand {
+	local($COM) = @_;
+	notice("\002$COM\002 - $ERRORMSG_BADCMD");
+}
+sub uhcheck {
+	local($tcnick,$tcident,$tcmask,$nick,$ident,$mask) = @_;
+	$tcnick =~ s/\}/\\}/g;
+	$tcnick =~ s/\{/\\{/g;
+	$tcnick =~ s/\]/\\]/g;
+	$tcnick =~ s/\[/\\[/g;
+
+	$tcident =~ s/\}/\\}/g;
+	$tcident =~ s/\{/\\{/g;
+	$tcident =~ s/\]/\\]/g;
+	$tcident =~ s/\[/\\[/g;
+
+	$tcmask =~ s/\}/\\}/g;
+	$tcmask =~ s/\{/\\{/g;
+	$tcmask =~ s/\]/\\]/g;
+	$tcmask =~ s/\[/\\[/g;
+
+	$tcnick =~ s/\*/\\S\*/g;
+      $tcident =~ s/\*/\\S\*/g;
+	$tcmask =~ s/\*/\\S\*/g;
+	if (($nick =~ /^$tcnick/i) && ($ident =~ /^$tcident/i) && ($mask =~ /^$tcmask/i))
+	{
+		return 1;
+	}
+	else { 
+		return 0;
+	}
+}
+sub wccheck {
+	local($wild,$string) = @_;
+	$wild =~ s/\]/\\]/;
+	$wild =~ s/\[/\\[/;
+	$wild =~ s/\}/\\}/;
+	$wild =~ s/\{/\\{/;
+	$wild =~ s/\*/\\S\*/g;
+	if ($string =~ /^$wild/i)
+	{
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub countgline {
+	local($mask) = @_;
+	@token = split(/\@/, $mask);
+	$GLC = "0";
+	foreach $i (keys %NINFO) {
+		$i =~ s/\n//g;
+		$i =~ s/\r//g;
+		if ($i ne "") {
+			$tmpident = $NINFO{$i}->{IDENT};
+			$tmphost = $NINFO{$i}->{MASK};
+			if ((&uhcheck("*",$token[0],$token[1],"*",$tmpident,$tmphost)) && (lc($tmphost) ne lc($NICKHOST))) 
+			{
+				$GLC++;
+			}
+		}
+	}
+}
+
+sub addgline {
+	local($mask,$setter,$duration,$reasons) = @_;
+	$mask = lc($mask);
+	$duration = "3600" * $duration;
+	$GLINE{$mask}->{DEFINE} = 1;
+	$GLINE{$mask}->{DURATION} = $duration;
+	$GLINE{$mask}->{SETTER} = $setter;
+	$GLINE{$mask}->{TIME} = time;
+	$GLINE{$mask}->{REASON} = $reasons;
+	out("$GWNUM GL * \+$mask $duration :$reasons");
+}
+
+sub remgline {
+	local($mask) = @_;
+	$mask = lc($mask);
+	delete($GLINE{$mask});
+	out("$GWNUM GL * -$mask");
+}
+
+sub isgline {
+	local($mask) = @_;
+	$mask = lc($mask);
+	if ($GLINE{$mask}->{DEFINE} == 1) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+## addjupe(servername,setter,duration,reasons) :: Adds a JUPE (NOWALLOPS)
+## remjupe(mask) :: Removes a JUPE (NOWALLOPS)
+## isjupe(servername) :: Checks whether is an active JUPE
+1;

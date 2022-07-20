@@ -1,0 +1,38 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+elsif ($tok[2] eq "") {
+        syntaxerr;
+}
+elsif (!(isregistered_nick($tok[1]))) {
+	error($tok[1],"is not a registered nickname.");
+}
+elsif ($tok[2] !~ /^\d+$/) {
+	notice("Invalid level to set");
+}
+elsif (($tok[2] != 0) && ($tok[2] < 600)) {
+	notice("Invalid level to set");
+}
+elsif (($tok[2] != 0) && ($tok[2] > 999)) {
+	notice("Invalid level to set");
+}
+elsif ($NDATA{lc($tok[1])}->{CSLVL} >= 1000) {
+	notice("Unable to change ROOT's CServices level.");
+}
+else {
+	$tok[1] = lc($tok[1]);
+	if ($tok[2] == 0) {
+		$NDATA{$tok[1]}->{CSLVL} = "0";
+		notice("Removed \002$tok[1]\002\'s CService level");
+	}
+	else {		
+		$NDATA{$tok[1]}->{CSLVL} = $tok[2];
+		notice("Changed \002$tok[1]\002\'s CService level to \002$tok[2]\002\.");
+	}
+}
+
+
+

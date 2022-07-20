@@ -1,0 +1,102 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif ($tok[1] eq "") {
+        syntaxerr;
+}
+elsif ((lc($tok[1]) eq lc($GW_MSG_CHAN)) || (lc($tok[1]) eq lc($GW_DEBUG_CHAN)) || (lc($tok[1]) eq lc($GW_DEBUG_CHAN2))) {
+	notice("You cannot do a CLEARCHAN on any of the relay/debug channels.");
+}
+
+else {
+	if ($tok[2] eq ""){
+	        notice("Clear options not specified, using default: \002omb\002");
+	        $CLROPT = "omb";
+	}    
+	elsif ($tok[2] ne "") {
+		if ($tok[2] =~ /m/) {
+			$CLROPT .= "m";
+		}
+		if ($tok[2] =~ /b/) {
+			$CLROPT .= "b";
+		}                                                                      
+		if ($tok[2] =~ /o/) {
+			$CLROPT .= "o";
+		}                                                                      
+		if ($tok[2] =~ /u/) {
+			$CLROPT .= "u";
+		}                                                                      
+
+	}
+	out("$OSNUM J $tok[1]");
+	out("$GWNUM M $tok[1] \+o $OSNUM");
+
+	if ($CLROPT =~ /m/) {
+		getchmodes($tok[1]);
+		$getchmodes_modes =~ s/\+/\-/;
+		out("$GWNUM M $tok[1] $getchmodes_modes *");
+		&mode($OSNUM,$tok[1],$getchmodes_modes);
+	}
+	if ($CLROPT =~ /b/) {
+		$tok[1] = lc($tok[1]);
+		$CLROPTCOUNT=0;
+		foreach $i (keys %{$CBAN{$tok[1]}}) {
+			if (($i ne "") && (isban($tok[1],$i))) {
+				$CLROPTBANS .= "$i ";
+				$CLROPTCOUNT++;
+				if ($CLROPTCOUNT == 6) {
+					out("$GWNUM M $tok[1] -bbbbbb $CLROPTBANS");
+					&mode($OSNUM,$tok[1],"-bbbbbb $CLROPTBANS");
+					undef $CLROPTBANS;
+					$CLROPTCOUNT=0;
+				}
+			}
+		}
+		$CLROPTTMP = "b" x $CLROPTCOUNT;
+		out("$GWNUM M $tok[1] -$CLROPTTMP $CLROPTBANS");
+		&mode($OSNUM,$tok[1],"-$CLROPTTMP $CLROPTBANS");
+		undef $CLROPTBANS;
+		undef $CLROPTCOUNT;
+		undef $CLROPTTMP;
+
+	}
+	if ($CLROPT =~ /o/) {
+		$tok[1] = lc($tok[1]);
+		$CLROPTCOUNT=0;
+		foreach $i (keys %NINFO) {
+			if (($i ne "") && (isop_num($tok[1],$i))) {
+				$CLROPTOPS .= "$i ";
+				$CLROPTCOUNT++;
+				if ($CLROPTCOUNT == 6) {
+					out("$OSNUM M $tok[1] -oooooo $CLROPTOPS");
+					&mode($OSNUM,$tok[1],"-oooooo $CLROPTOPS");
+					undef $CLROPTOPS;
+					$CLROPTCOUNT=0;
+				}
+			}
+		}
+		$CLROPTTMP = "o" x $CLROPTCOUNT;
+		out("$OSNUM M $tok[1] -$CLROPTTMP $CLROPTOPS");
+		&mode($OSNUM,$tok[1],"-$CLROPTTMP $CLROPTOPS");
+		undef $CLROPTOPS;
+		undef $CLROPTCOUNT;
+		undef $CLROPTTMP;
+	}
+	if ($CLROPT =~ /u/) {
+		$tok[1] = lc($tok[1]);
+		out("$GWNUM M $tok[1] \+b \*\!\*\@\*\.\*");
+	        &mode($GSNUM,$tok[1],"\+b \*\!\*\@\*\.\*");   
+		foreach $i (keys %NINFO) {
+			if (($i ne "") && (ison_num($tok[1],$i))) {
+				out("$OSNUM K $tok[1] $i :Clearing all users on channel: $tok[1]");
+			}
+		}
+	}
+	out("$OSNUM L $tok[1]");
+      getinfo_nick($nick);
+      wallops($OPERSERV,"$nick\[$getinfo_halfhost\] \002CLEARCHAN\002 $tok[1] ($CLROPT)");
+	notice("Completed clearing \002$tok[1]\002 ($CLROPT).");
+	undef $CLROPT;
+	&addlog;
+
+}

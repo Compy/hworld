@@ -1,0 +1,4 @@
+Kicks a user from the specified channel.
+
+EXAMPLE: /msg %OS% KICK #CHAT Lamer You are not welcomed into this channel
+SEEALSO: CLEARCHAN

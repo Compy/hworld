@@ -1,0 +1,84 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+else {
+	if ($tok[1] eq "") {
+		notice("\026Channel Access Level for: $ISAUTH{$numnick}\026");
+		notice("============================================================");
+		notice("Channel                  Level");
+		$count = 0;
+		undef $af;
+		foreach $i (keys %CDATA) {
+			if (($i ne "") && (isregisteredcase_chan($i))) {
+				if (getchlevel($i,$ISAUTH{$numnick})) {
+					$count++;
+					$tmpspace = "22" - length($i);
+					$tmpspace = " " x $tmpspace;
+					notice("\002$count\.\002 $i$tmpspace$getchlevel_level");
+					$af = "1";
+				}
+			}
+		}
+		if ($af == 0) {
+			notice(" You do not have any channel accesses.");
+		}
+		if ($CSERVICELVL{$numnick} != 0) {
+			notice(" ");
+			notice("CserviceLvl: \002$CSERVICELVL{$numnick}\002");
+		}
+		notice("============================================================");
+
+	}
+	else {
+		if (!(isregistered_chan($tok[1]))) {
+			if (isvalid($tok[1])) {
+				error($tok[1],"is not a registered channel.");
+			}
+			else {
+				if ($CSERVICELVL{$numnick} < $CSERVICE) {
+					error($tok[1],"is not registered.");
+				}
+				else {
+					if (!(isregistered_nick($tok[1]))) {
+						notice("Unable to retrieve \002$tok[1]\002\'s access - the nickname is not registered");
+					}
+					else {
+						notice("\026Channel Access Level for: $tok[1]\026");
+						notice("============================================================");
+						notice("Channel                  Level");
+						$count = 0;
+						undef $af;
+						foreach $i (keys %CDATA) {
+							if (($i ne "") && (isregisteredcase_chan($i))) {
+								if (getchlevel($i,$tok[1])) {
+									$count++;
+									$tmpspace = "22" - length($i);
+									$tmpspace = " " x $tmpspace;
+									notice("\002$count\.\002 $i$tmpspace$getchlevel_level");
+									$af = "1";
+								}
+							}
+						}
+						if ($af == 0) {
+							notice(" $tok[1] does not have any channel accesses.");
+						}
+						if ($CSERVICELVL{$numnick} != 0) {
+							notice(" ");
+							notice("CserviceLvl: \002$NDATA{lc($tok[1])}->{CSLVL}\002");
+						}
+						notice("============================================================");
+						&addlog;
+					}
+
+				}
+			}
+		}
+		elsif (!(getchlevel($tok[1],$ISAUTH{$numnick}))) {
+			notice("You do not have any channel access to \002$tok[1]\.\002");
+		}
+		else {
+			getchlevel($tok[1],$ISAUTH{$numnick});
+			notice("You have \002$getchlevel_level\002 channel access on $tok[1]\.");
+		}
+	}
+}

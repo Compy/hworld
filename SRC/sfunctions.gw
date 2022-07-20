@@ -1,0 +1,111 @@
+sub num2int {
+  # This function is done by Guy Powell (12/12/99)
+
+  if(length($_[0]) eq 2) {
+    # Split up string
+    local($c2) = chop(@_);
+    local($c1) = chop(@_);
+    # Calculate first character
+    local($b1,$j,$k,$l);
+    $b1 = 0;
+    for($j = 0; $j < length($c1); $j++) {
+      $k = substr($c1,$j,1);
+      $b1 *= 64;
+      $b1 += $tn{$k};
+    }
+    # Calculate second character
+    local($b2,$j,$k,$l);
+    $b2 = 0;
+    for($j = 0; $j < length($c2); $j++) {
+      $k = substr($c2,$j,1);
+      $b2 *= 64;
+      $b2 += $tn{$k};
+    }
+    $b1 = $b1 * 64;
+    return($b2 + $b1);
+  } else {
+    local($str) = @_;
+    local($i,$j,$k,$l);
+    $i = 0;
+    for($j = 0; $j < length($str); $j++) {
+      $k = substr($str,$j,1);
+      $i *= 64;
+      $i += $tn{$k};
+    }
+    return($i);
+  }
+}
+
+sub int2num {
+	# This function is done by Guy Powell (12/12/99)
+	local($a,$b,$c);
+	$a = int($_[0]/64);
+	$c = $a*64;
+	$b = $_[0] - $c;
+	local($i) = $a;
+	local($j,$k,$l);
+	$k = "";
+	while($i) {
+		$k =  $tn[$i % 64] . $k;
+		$i = int($i / 64);
+	}
+	if ($k eq "") { $k = "A"; }
+	$a = $k;
+	$i = $b;
+	$k = ""; $j = ""; $l = "";
+	while($i) {
+		$k =  $tn[$i % 64] . $k;
+		$i = int($i / 64);
+	}
+	if ($k eq "") { $k = "A"; }
+	$b = $k;
+	return($a.$b);
+}
+
+
+sub initp10 {
+	# Initalises P10 arrays.
+	# -- Guy Powell (04/01/99)
+	$temp = 0;
+	foreach $i (A..Z) {
+		$tn{$i} = $temp++;
+	}
+	foreach $i (a..z) {
+		$tn{$i} = $temp++;
+	}
+	foreach $i (0..9) {
+		$tn{$i} = $temp++;
+	}
+	$tn{'['} = $temp++;
+	$tn{']'} = $temp++;
+	@tn = (A..Z,a..z,0..9,'[',']');
+}
+
+sub isserver_num {
+	local($servnum) = @_;
+	if ($SINFO{$servnum}->{SERVERNAME} ne "") {
+		return 1;
+	}
+	return 0;
+}
+sub isserver {
+	local($serv) = @_;
+	if ($SNUMERIC{lc($serv)} ne "") {
+		return 1;
+	}
+	return 0;
+}
+
+sub num2serv {
+	local($num) = @_;
+	$tmpserv = $SINFO{$num}->{SERVERNAME};
+	return $tmpserv;
+}
+
+sub serv2num {
+	local($serv) = @_;
+	$tmpnum = $SNUMERIC{lc($serv)};
+	return $tmpnum;
+}
+
+1;

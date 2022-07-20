@@ -1,0 +1,38 @@
+if (!(getoperlevel($numnick))) {
+        error($COM,"insufficient access to use that command.");
+}
+elsif (!(isauth_nick($nick))) {
+        noautherr;
+}
+else {
+	notice("\026$VER [IRC Services Package]\026");
+	notice("\002Expired nicknames:\002");
+	foreach $i (keys %NDATA) {
+		if (($i ne "") && (isregistered_nick($i)) && ($NDATA{lc($i)}->{NOEXPIRE} != 1)) {
+			$lastused = $NDATA{$i}->{LASTAUTH};
+			$lastused = time - $lastused;
+			if ($lastused >= $NICKPURGE) {
+				$lastused = $lastused - $NICKPURGE;
+				gettime($lastused);
+				notice(" $i \[$gettime_days\002days\002 $gettime_hours\:$gettime_mins\:$gettime_secs]");
+			}
+		}
+	}
+	notice("\002Expired channels:\002");
+	foreach $i (keys %CDATA) {
+		if (($i ne "") && (isregisteredcase_chan($i)) && ($CDATA{lc($i)}->{NOEXPIRE} != 1)) {
+			$lastused = $CDATA{$i}->{LASTUSED};
+			$lastused = time - $lastused;
+			if ($lastused >= $CHANPURGE) {
+				gettime($lastused);
+				notice(" $i \[$gettime_days\002days\002 $gettime_hours\:$gettime_mins\:$gettime_secs]");
+			}
+		}
+	}
+	notice("\002End of list\002");
+
+}
+
+
+
+

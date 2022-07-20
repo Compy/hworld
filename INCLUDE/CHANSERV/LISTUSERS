@@ -1,0 +1,45 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[1] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	$tmp = $CDATA{lc($tok[1])}->{USERS};
+	$count = 0;
+      @tmpusers = split(/ /,$tmp);
+	notice("\002Channel:\002 $tok[1]");
+	notice(" Nickname        Level        Last Modified");
+	notice("================================================");
+      foreach $i (@tmpusers) {
+		if ($i ne "") {
+			($getchlevel_nick,$getchlevel_level,$getchlevel_adder) = split(/\@/, $i, 3);
+			$count++;
+			$tmpspace = "17" - length($getchlevel_nick);
+                  $tmpspace = " " x $tmpspace;
+			$tmpp = "$getchlevel_nick$tmpspace$getchlevel_level";
+			$tmpspacee = "30" - length($tmpp);
+			$tmpspacee = " " x $tmpspacee;
+                  notice(" $getchlevel_nick$tmpspace$getchlevel_level$tmpspacee$getchlevel_adder");
+		}
+
+      }
+	notice("\002Total Users:\002 $count");
+	notice("================================================");
+	undef $tmpspace;
+	undef $tmpp;
+	undef $tmpspacee;
+	undef $getchlevel_nick;
+	undef $getchlevel_level;
+	undef $getchlevel_adder;
+	undef $count;
+	undef @tmpusers;
+}
+
+

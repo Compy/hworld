@@ -1,0 +1,4 @@
+This command makes %CS% cycle the channel. Used incase of desynch, where servers keeps on deoping
+%CS%.
+
+EXAMPLE: /msg %CS% CYCLE #Gworld

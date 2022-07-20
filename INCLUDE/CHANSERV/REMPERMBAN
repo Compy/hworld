@@ -1,0 +1,75 @@
+if (!(isauth_nick($nick))) {
+	noautherr;
+}
+elsif ($tok[2] eq "") {
+	syntaxerr;
+}
+elsif (!(isregistered_chan($tok[1]))) {
+	error($tok[1],"is not a registered channel.");
+}
+elsif (&getcmdlevel > &returnchlevel($tok[1],$ISAUTH{$numnick})) {
+	error($tok[1],"insufficient access to use this command.");
+}
+else {
+	if ($tok[2] =~ /^\d+$/) {
+		$tmp = $CDATA{lc($tok[1])}->{PERMBANS};
+		$tmpend = "";
+		$found = 0;
+		$rcount = 0;
+	      @tmppermbans = split(/ƒ/,$tmp);
+	      foreach $i (@tmppermbans) {
+			if ($i ne "") {
+				($pb_mask,$pb_setter,$pb_date,$pb_reasons) = split(/\±/, $i, 4);
+				$rcount++;
+				if ($tok[2] == $rcount) {
+					$found = 1;
+					notice("Removed PERMBAN \002$pb_mask\002 from $tok[1].");
+				}
+				else {
+					$tmpend .= "$pb_mask\±$pb_setter\±$pb_date\±$pb_reasonsƒ";
+				}
+			}
+	      }
+		$CDATA{lc($tok[1])}->{PERMBANS} = $tmpend;
+	      if ($found == 0) {
+			notice("Unable to locate PERMBAN with numeric \002$tok[2]\002.");
+	      }                                                                      
+
+	}
+	else {
+		if (!(ispermban($tok[1],$tok[2]))) {
+			notice("Unable to locate PERMBAN: \002$tok[2]\002.");
+		}
+		else {
+			$tmp = $CDATA{lc($tok[1])}->{PERMBANS};
+			$tmpend = "";
+			$found = 0;
+		      @tmppermbans = split(/ƒ/,$tmp);
+		      foreach $i (@tmppermbans) {
+				if ($i ne "") {
+					($pb_mask,$pb_setter,$pb_date,$pb_reasons) = split(/\±/, $i, 4);
+					if (lc($pb_mask) eq lc($tok[2])) {
+						$found = 1;
+						notice("Removed PERMBAN \002$tok[2]\002 from $tok[1].");
+					}
+					elsif (lc($pb_mask) ne lc($tok[2])) {
+						$tmpend .= "$pb_mask\±$pb_setter\±$pb_date\±$pb_reasonsƒ";
+					}
+				}
+		      }
+			$CDATA{lc($tok[1])}->{PERMBANS} = $tmpend;
+		      if ($found == 0) {
+				notice("Unable to locate PERMBAN: $tok[2]");
+		      }                                                                      
+		}
+	}
+	undef $tmpend;
+	undef $found;
+	undef $tmp;
+	undef $pb_mask;
+	undef $pb_setter;
+	undef $pb_date;
+	undef $pb_reasons;
+}
+
+

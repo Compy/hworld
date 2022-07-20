@@ -1,0 +1,4 @@
+Checks who the user is authenticated as. If the user is a ircop, it will also notify you.
+
+EXAMPLE: /msg %CS% WHOIS GeNeXiS
+SEEALSO: STATUS INFO

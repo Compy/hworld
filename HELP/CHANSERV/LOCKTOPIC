@@ -1,0 +1,6 @@
+Forces channel services to lock the particular channel topic. If nothing is specified,
+LOCKTOPIC function is turned off for the channel.
+
+EXAMPLE: /msg %CS% LOCKTOPIC #Gworld Do not change this topic
+         /msg %CS% LOCKTOPIC #Gworld
+SEEALSO: LOCKMODE STATUS

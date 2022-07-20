@@ -1,0 +1,7 @@
+Prevents a channel or nickname to be registered by users or my the ADDNICK/ADDCHAN command.
+If no nickname or channel is specified, it will lists all nicknames and channels currently
+'restricted'.
+
+EXAMPLE: /msg %CS% RESTRICT IRCop Reserved for IRCopers
+         /msg %CS% RESTRICT #Admins Reserved for admins
+SEEALSO: NOEXPIRE
